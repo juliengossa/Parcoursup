@@ -1,0 +1,155 @@
+---
+title: "Untitled"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.asp=9/16)
+library(tidyverse)
+library(ggcpesrthemes)
+
+theme_cpesr_setup(authors="Julien Gossa",source="https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/")
+
+spoilerTable <- function(df) {
+  cat("\n<details>\n")
+  cat("  <summary>Voir les données</summary>\n\n")
+  
+  print(kableExtra::kable(df, format="pipe"))
+  
+  cat("\n\n</details>\n")
+}
+```
+
+
+```{r load}
+ps18 <- read.csv2("fr-esr-parcoursup-2018.csv",dec='.')
+ps19 <- read.csv2("fr-esr-parcoursup-2019.csv",dec='.')
+ps20 <- read.csv2("fr-esr-parcoursup-2020-xls.csv",dec=',') %>%
+  rename(
+    Libellé.formation = Filière.de.formation.détaillée,
+    Filière.de.formation.détaillée = Filière.de.formation.détaillée.1
+  ) %>%
+  select(-X..d.admis.néo.bacheliers.issus.du.même.établissement..BTS.CPGE.)
+
+ps21 <- read.csv2("fr-esr-parcoursup-2021-xls.csv",dec=',') %>%
+  rename(
+    Libellé.formation = Filière.de.formation.détaillée,
+    Filière.de.formation.détaillée = Filière.de.formation.détaillée.1
+  ) %>%
+  select(-X..d.admis.néo.bacheliers.issus.du.même.établissement..BTS.CPGE.)
+
+ps <- bind_rows(ps18,ps19,ps20,ps21) %>%
+  mutate(Filière.de.formation.très.agrégée = fct_recode(
+    factor(Filière.de.formation.très.agrégée),
+    DUT_BUT = "DUT",
+    DUT_BUT = "BUT",
+  ))
+```
+
+```{r cn, results='asis'}
+ps18cn <- colnames(ps18)
+ps19cn <- colnames(ps19)
+ps20cn <- colnames(ps20)
+ps21cn <- colnames(ps21) 
+
+
+tibble("col"=colnames(ps18),"ps18"=TRUE) %>%
+  full_join( tibble("col"=colnames(ps19),"ps19"=TRUE) ) %>%
+  full_join( tibble("col"=colnames(ps20),"ps20"=TRUE) ) %>%
+  full_join( tibble("col"=colnames(ps21),"ps21"=TRUE) ) %>%
+  spoilerTable()
+```
+
+```{r info}
+info <- ps %>% 
+  filter(str_detect(Filière.de.formation.détaillée,"nformatique") | Filière.de.formation.détaillée == "MP2I") %>%
+  group_by(Session,Fillière=Filière.de.formation.très.agrégée) %>%
+  summarise(
+    Capacité = sum(Capacité.de.l.établissement.par.formation),
+    Candidatures = sum(Effectif.total.des.candidats.pour.une.formation),
+    Propositions = sum(Effectif.total.des.candidats.ayant.reçu.une.proposition.d.admission.de.la.part.de.l.établissement),
+    Admissions = sum(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.)
+  ) %>%
+  pivot_longer(Capacité:Admissions, names_to = "Type", values_to = "Nombre") %>%
+  mutate(Type = factor(Type, levels=c("Capacité","Candidatures","Propositions","Admissions"))) %>%
+  mutate(Fillière = factor(Fillière, levels = c("Autre formation","BTS", "DUT_BUT", "Licence", "Licence_Las", "CPGE")))
+```
+
+```{r info.total}
+info %>% 
+  group_by(Session,Type) %>%
+  summarise(Nombre=sum(Nombre)) %>%
+  ggplot(aes(x=Session,y=Nombre,color=Type, fill=Type, group=Type)) +
+  geom_line() +
+  geom_point(shape=21,size=4, stroke=2, color="white") +
+  expand_limits(y=0) +
+  theme_cpesr_cap()
+```
+
+```{r info.fil}
+info %>% 
+  ggplot(aes(x=Session,y=Nombre,color=Type, fill=Type, group=Type)) +
+  geom_line() +
+  geom_point(shape=21,size=4, stroke=1, color="white") +
+  facet_wrap(.~Fillière) +
+  expand_limits(y=0) +
+  theme_cpesr_cap()
+```
+
+```{r info.fil.capad}
+info %>% 
+  filter(Type %in% c("Capacité","Admissions")) %>%
+  ggplot(aes(x=Session,y=Nombre,color=Type, fill=Type, group=Type)) +
+  geom_line() +
+  geom_point(shape=21,size=4, stroke=1, color="white") +
+  facet_wrap(.~Fillière) +
+  expand_limits(y=0) +
+  theme_cpesr_cap()
+```
+
+```{r info.fil.ad}
+info %>% 
+  filter(Type %in% c("Admissions")) %>%
+  complete(Fillière,Session, fill = list(Nombre=0)) %>% 
+  mutate(Fillière = fct_rev(Fillière)) %>%
+  ggplot(aes(x=Session,y=Nombre, fill=Fillière, group=Fillière)) +
+  geom_area(color="white", alpha=0.5,size=0.1) +
+  expand_limits(y=0) +
+  scale_fill_brewer(palette = "Dark2") +
+  theme_cpesr_cap() +
+  ylab("Admissions") +
+  ggtitle("Parcoursup : admissions en fillières informatique")
+
+```
+
+
+```{r info.L}
+info.all <- bind_rows(
+  info %>% 
+    filter(Fillière %in% c("Licence","DUT_BUT"), Type == "Admissions") %>%
+    mutate(Fillière = paste(Fillière, "Informatique")),
+  ps %>% 
+    group_by(Session) %>%
+    summarise(
+      Fillière = "Ensemble",
+      Type = "Admissions",
+      Nombre = sum(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.))
+) %>%
+mutate(Fillière = factor(Fillière,c("Licence Informatique","DUT_BUT Informatique","Ensemble"))) %>%
+group_by(Fillière) %>%
+mutate(Valeur100 = Nombre / first(Nombre) * 100)
+
+info.all %>%
+  ggplot(aes(x=Session,y=Valeur100,group=Fillière)) +
+    geom_line(aes(color=Fillière), size=1) +
+    geom_point(aes(fill=Fillière), shape=21,size=4,stroke=2,color="white") +
+    ylab("Admissions (valeur 100 en 2018)") +
+    expand_limits(y=c(90,120)) +
+    theme_cpesr_cap() +
+    ggtitle("Parcoursup : evolution des admissions en fillières informatique \ncomparée à l'ensemble des admissions")
+```
+
+
+
+
+
