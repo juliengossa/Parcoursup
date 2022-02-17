@@ -63,7 +63,7 @@ tibble("col"=colnames(ps18),"ps18"=TRUE) %>%
 ```{r info}
 info <- ps %>% 
   filter(str_detect(Filière.de.formation.détaillée,"nformatique") | Filière.de.formation.détaillée == "MP2I") %>%
-  group_by(Session,Fillière=Filière.de.formation.très.agrégée) %>%
+  group_by(Session,Filière=Filière.de.formation.très.agrégée) %>%
   summarise(
     Capacité = sum(Capacité.de.l.établissement.par.formation),
     Candidatures = sum(Effectif.total.des.candidats.pour.une.formation),
@@ -72,7 +72,7 @@ info <- ps %>%
   ) %>%
   pivot_longer(Capacité:Admissions, names_to = "Type", values_to = "Nombre") %>%
   mutate(Type = factor(Type, levels=c("Capacité","Candidatures","Propositions","Admissions"))) %>%
-  mutate(Fillière = factor(Fillière, levels = c("Autre formation","BTS", "DUT_BUT", "Licence", "Licence_Las", "CPGE")))
+  mutate(Filière = factor(Filière, levels = c("Autre formation","BTS", "DUT_BUT", "Licence", "Licence_Las", "CPGE")))
 ```
 
 ```{r info.total}
@@ -91,7 +91,7 @@ info %>%
   ggplot(aes(x=Session,y=Nombre,color=Type, fill=Type, group=Type)) +
   geom_line() +
   geom_point(shape=21,size=4, stroke=1, color="white") +
-  facet_wrap(.~Fillière) +
+  facet_wrap(.~Filière) +
   expand_limits(y=0) +
   theme_cpesr_cap()
 ```
@@ -102,7 +102,7 @@ info %>%
   ggplot(aes(x=Session,y=Nombre,color=Type, fill=Type, group=Type)) +
   geom_line() +
   geom_point(shape=21,size=4, stroke=1, color="white") +
-  facet_wrap(.~Fillière) +
+  facet_wrap(.~Filière) +
   expand_limits(y=0) +
   theme_cpesr_cap()
 ```
@@ -110,15 +110,15 @@ info %>%
 ```{r info.fil.ad}
 info %>% 
   filter(Type %in% c("Admissions")) %>%
-  complete(Fillière,Session, fill = list(Nombre=0)) %>% 
-  mutate(Fillière = fct_rev(Fillière)) %>%
-  ggplot(aes(x=Session,y=Nombre, fill=Fillière, group=Fillière)) +
+  complete(Filière,Session, fill = list(Nombre=0)) %>% 
+  mutate(Filière = fct_rev(Filière)) %>%
+  ggplot(aes(x=Session,y=Nombre, fill=Filière, group=Filière)) +
   geom_area(color="white", alpha=0.5,size=0.1) +
   expand_limits(y=0) +
   scale_fill_brewer(palette = "Dark2") +
   theme_cpesr_cap() +
   ylab("Admissions") +
-  ggtitle("Parcoursup : admissions en fillières informatique")
+  ggtitle("Parcoursup : admissions en Filières informatique")
 
 ```
 
@@ -126,30 +126,92 @@ info %>%
 ```{r info.L}
 info.all <- bind_rows(
   info %>% 
-    filter(Fillière %in% c("Licence","DUT_BUT"), Type == "Admissions") %>%
-    mutate(Fillière = paste(Fillière, "Informatique")),
+    filter(Filière %in% c("Licence","DUT_BUT"), Type == "Admissions") %>%
+    mutate(Filière = paste(Filière, "Informatique")),
   ps %>% 
     group_by(Session) %>%
     summarise(
-      Fillière = "Ensemble",
+      Filière = "Ensemble",
       Type = "Admissions",
       Nombre = sum(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.))
 ) %>%
-mutate(Fillière = factor(Fillière,c("Licence Informatique","DUT_BUT Informatique","Ensemble"))) %>%
-group_by(Fillière) %>%
+mutate(Filière = factor(Filière,c("Licence Informatique","DUT_BUT Informatique","Ensemble"))) %>%
+group_by(Filière) %>%
 mutate(Valeur100 = Nombre / first(Nombre) * 100)
 
 info.all %>%
-  ggplot(aes(x=Session,y=Valeur100,group=Fillière)) +
-    geom_line(aes(color=Fillière), size=1) +
-    geom_point(aes(fill=Fillière), shape=21,size=4,stroke=2,color="white") +
+  ggplot(aes(x=Session,y=Valeur100,group=Filière)) +
+    geom_line(aes(color=Filière), size=1) +
+    geom_point(aes(fill=Filière), shape=21,size=4,stroke=2,color="white") +
     ylab("Admissions (valeur 100 en 2018)") +
     expand_limits(y=c(90,120)) +
     theme_cpesr_cap() +
-    ggtitle("Parcoursup : evolution des admissions en fillières informatique \ncomparée à l'ensemble des admissions")
+    ggtitle("Parcoursup : évolution des admissions en Filières informatique \ncomparées à l'ensemble des admissions")
 ```
 
 
 
 
 
+
+```{r IFSI}
+ifsi <- bind_rows(
+  ps %>% 
+    filter(Filière.de.formation.très.agrégée == "IFSI") %>%
+    group_by(Session) %>%
+    summarise(
+      Filière = "IFSI",
+      Nombre = sum(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.)),
+  ps %>% 
+    group_by(Session) %>%
+    summarise(
+      Filière = "Ensemble",
+      Nombre = sum(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.))
+  ) %>%
+  filter(Session > 2018) %>%
+  mutate(Session = factor(Session)) %>%
+  mutate(Filière = factor(Filière,c("IFSI","Ensemble"))) %>%
+  group_by(Filière) %>%
+  mutate(Valeur100 = Nombre / first(Nombre) * 100)
+
+ifsi %>%
+  ggplot(aes(x=Session,y=Valeur100,group=Filière)) +
+    geom_line(aes(color=Filière), size=1) +
+    geom_point(aes(fill=Filière), shape=21,size=4,stroke=2,color="white") +
+    ylab("Admissions (valeur 100 en 2019)") +
+    expand_limits(y=c(90,120)) +
+    theme_cpesr_cap() +
+    ggtitle("Parcoursup : évolution des admissions en IFSI \ncomparées à l'ensemble des admissions")
+```
+
+```{r ifsi2}
+ifsi %>%
+  filter(Filière == "IFSI") %>%
+  ggplot(aes(x=Session,y=Nombre,group=Filière)) +
+    geom_line(aes(color=Filière), size=1) +
+    geom_point(aes(fill=Filière), shape=21,size=4,stroke=2,color="white") +
+    ylab("Admissions") +
+    expand_limits(y=c(0,30000)) +
+    theme_cpesr_cap() +
+    ggtitle("Parcoursup : nombre d'admissions en IFSI")
+```
+
+
+```{r ifsi3}
+ps %>% 
+  filter(Filière.de.formation.très.agrégée == "IFSI") %>%
+  group_by(Session) %>%
+  summarise(
+    Filière = "IFSI",
+    Admissions = sum(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.),
+    Candidatures = sum(Effectif.total.des.candidats.pour.une.formation)) %>%
+  pivot_longer(c(Admissions,Candidatures), names_to="Type", values_to = "Nombre") %>%
+
+  ggplot(aes(x=Session,y=Nombre,group=Type)) +
+    geom_line(aes(color=Type), size=1) +
+    geom_point(aes(fill=Type), shape=21,size=4,stroke=2,color="white") +
+    ylab("Nombre") +
+    expand_limits(y=c(0,30000)) +
+    theme_cpesr_cap() +
+    ggtitle("Parcoursup : nombre de candidatures et d'admissions en IFSI")
+```

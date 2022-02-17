@@ -159,3 +159,9 @@ Voir les données
 ![](parcoursup_files/figure-gfm/info.fil.ad-1.png)<!-- -->
 
 ![](parcoursup_files/figure-gfm/info.L-1.png)<!-- -->
+
+![](parcoursup_files/figure-gfm/IFSI-1.png)<!-- -->
+
+![](parcoursup_files/figure-gfm/ifsi2-1.png)<!-- -->
+
+![](parcoursup_files/figure-gfm/ifsi3-1.png)<!-- -->
