@@ -1,0 +1,450 @@
+---
+title: "Ordonner les bacheliers avec leurs notes au Bac"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(ggcpesrthemes)
+theme_set(theme_cpesr())
+```
+
+```{r load}
+cn <-paste0(
+    rep(
+      c(paste0("BacGen_",c("ES","L","S","Tout")),
+        paste0("BacTechno_",c("ST2S","STD2A","STHR","STI2D","STL","STMG","Tout")),
+        paste0("BacPro_",c("Production","Services","Tout")),
+        "Tout"), 
+      each=2),
+    rep(c(".Effectif",".Distribution"), 15)
+  )
+
+
+
+bac <- readxl::read_xlsx("HC-504-Distribution-moyenne-bac-2018-2020-filière-série.xlsx", 
+                  sheet = "2020", skip = 7, n_max = 201, na = ".", 
+                  col_names = c("Moyenne",cn)) %>%
+  mutate(across(everything(), ~ replace_na(.x,0))) %>%
+  mutate(Moyenne = recode(Moyenne, "20 ou plus" = "20")) %>%
+  mutate(Moyenne = as.numeric(str_replace(Moyenne,",","."))) %>%
+  mutate(Mention = cut(Moyenne, right = FALSE,
+                       breaks=c(0,10,12,14,16,21),
+                       labels = c("Non admis","Sans mention","Assez bien","Bien","Très bien")))
+
+```
+
+Ce document propose d'illustrer la difficulté d'obtenir un résultat équitable par 
+l'application d’algorithmes dans la réalité. 
+Sur le cas concret de l'affectation des étudiants dans l'enseignement supérieur en France,
+nous allons montrer qu'un problème de qualité des données peut conduire
+à des décision différentes pour des individus pourtant équivalents en regard des 
+objectifs poursuivis.
+
+Ce problème se défini ainsi :
+étant donné un nombre de candidats formulant des vœux de poursuite d'étude,
+et un nombre de formations proposant des places, comment affecter ces candidats
+dans ces formations ?
+
+Une solution communément admise consiste à employer un algorithme d'appariement,
+aussi appeler de mariage, tel que celui de Gale-Shapley. Un tel algorithme nécessite 
+que les candidats ordonnent leurs vœux, et que les formations ordonnent leurs candidatures. 
+
+En France, les candidats ont le droit d'ordonner jusqu'à 10 vœux, et 20 sous-vœux 
+(vœux communs à des formations équivalentes). En 2020, 658 000 lycéens ont ainsi
+formulé près de 7 millions de vœux, et donc autant de candidatures, pour environ
+13 000 formations.
+
+Pour que l'algorithme fonctionne, il faut que les formations construisent un 
+ordre total entre les candidatures, c'est à dire affecter à chacun d'eux un _rang_,
+ sans _ex-æquo_. L'équité de l'algorithme repose sur la 
+qualité de cet ordre. Or, sa construction est difficile, et parfois même impossible,
+et cela n'est pas sans conséquence sur l'équité de la solution obtenue.
+
+Nous allons d'abord discuter de la qualité des données au travers d'un ordre basé
+sur les notes au bac, pour ensuite discuter de l'équité des décisions que les formations 
+peuvent prendre en l'utilisant.
+Nous en tirerons ensuite une conclusion.
+
+
+## L'ordonnancement de tous les bacheliers par leurs notes
+
+Dans cette partie, nous allons illustrer la question de la qualité des données 
+servant d'entrée à l'algorithme, en prenant le cas concret des notes au Bac, 
+issues du jeu de données `la distribution des notes au baccalauréat en 2020`.
+
+En 2020, 729 361 lycéens ont passé leur bac. Le jeu de données présente la 
+distribution de leur note moyenne finale, avec une précision de 1/10e de point :
+
+```{r bac.distrib}
+bac %>%
+  ggplot(aes(x=Moyenne,y=Tout.Effectif,color=Mention,fill=Mention)) +
+  geom_col()
+```
+
+On y constate trois choses :
+
+- l'intervalle `[0,20]` n'est pas uniformément utilisé : notamment, il existe très peu
+de notes dans `[0,10)` ;
+- la distribution des notes ne suit pas directement une loi normale : il existe des 
+notes très clairement sur-utilisées au début de chaque mention ;
+- de nombreux candidats partagent exactement la même note au dixième de point : 
+par exemple, plus de 38 000 bacheliers ont exactement une moyenne de 12,0.
+
+On peut constater les mêmes phénomènes en limitant la visualisation au Bac général
+série scientifique (S) :
+
+```{r bac.distrib.s}
+bac %>%
+  ggplot(aes(x=Moyenne,y=BacGen_S.Effectif,color=Mention,fill=Mention)) +
+  geom_col() 
+```
+
+Ceci s'explique notamment par la nature de ces notes, qui sont en réalité construites
+pour refléter un niveau scolaire, et non pour ordonner les bacheliers.
+
+Pour pouvoir construire un ordre total, il faudrait calculer ces notes moyennes 
+au 1/100000e de point. Si elle est techniquement réalisable, une telle précision 
+n'a pourtant aucune pertinence pédagogique, à moins de considérer qu'un candidat
+ayant 12,00002 de moyenne est effectivement meilleur que quelqu'un ayant 12,00001, 
+sachant que ces moyennes proviennent d'épreuves différentes, par des correcteurs 
+différents dans des établissements différents, parfois même avec des options 
+différentes dans des filières différentes.
+
+En détournant les données de leur usage initial, et en augmentant leur précision
+pour correspondre aux besoins de l'algorithme, on prend donc le risque de diminuer 
+leur qualité en regard de l'objectif recherché.
+
+Il faut donc s'interroger sur la pertinence de l'écart entre les notes pour 
+ordonner les bacheliers : si les notes 12,5 et 12,6 permettent en soi un ordre, cet ordre
+a-t-il un sens pour décrire une réelle différence de profil entre deux bacheliers ?
+Et si non, quel écart permet d'obtenir du sens ?
+
+La distribution des notes montre qu'il y a des différences significatives 
+à la frontière des mentions : 11,9 est effectivement différent de 12, un jury étant intervenu pour
+décider que tel candidat ayant 11.9 mérite 12, et pas tel autre. 
+On peut donc construire ordre plus pertinente des candidats en réduisant la 
+précision des données, par exemple en regroupant les notes avec une précision de 1/1 :
+
+
+```{r bac.distrib.1}
+bac %>%
+  group_by(Moyenne = floor(Moyenne), Mention) %>%
+  summarise(Tout.Effectif = sum(Tout.Effectif)) %>%
+  ggplot(aes(x=Moyenne,y=Tout.Effectif,color=Mention,fill=Mention)) +
+  geom_col()
+```
+On augmente ainsi la pertinence de l'ordre entre les candidats, mais au prix d'une 
+augmentation considérable des candidats partageant le même rang : 
+jusqu'à 150 000 candidats partagent la même note. 
+
+En regardant le seul Bac S, on dépasse encore les 30 000 candidats par note :
+
+```{r bac.distrib.1.s}
+bac %>%
+  group_by(Moyenne = floor(Moyenne), Mention) %>%
+  summarise(Tout.Effectif = sum(BacGen_S.Effectif)) %>%
+  ggplot(aes(x=Moyenne,y=Tout.Effectif,color=Mention,fill=Mention)) +
+  geom_col()
+```
+
+Il est possible d'aller plus loin dans cette démarche, en considérant non plus les notes, mais les mentions,
+qui ont sans doute la meilleure pertinence pédagogique (soit une précision de 2/1 au dessus de 10,0) :
+
+
+```{r bac.distrib.mention}
+bac %>%
+  group_by(Mention) %>%
+  summarise(Tout.Effectif = sum(Tout.Effectif)) %>%
+  ggplot(aes(x=Mention,y=Tout.Effectif,color=Mention,fill=Mention)) +
+  geom_col()
+```
+
+Nous dépassons alors les 200 000 candidats par rang, et presque 60 000 en ne 
+regardant que le Bac S :
+
+```{r bac.distrib.mention.S}
+bac %>%
+  group_by(Mention) %>%
+  summarise(Tout.Effectif = sum(BacGen_S.Effectif)) %>%
+  ggplot(aes(x=Mention,y=Tout.Effectif,color=Mention,fill=Mention)) +
+  geom_col()
+```
+
+Ce exemple illustre le problème qu'engendre un détournement des données, et plus 
+généralement l'utilisation de données non adaptées, ou insuffisamment pertinentes
+en regard de l'objectif poursuivi : on peut rapidement arriver à l'impossibilité
+de construire un ordre total équitable entre les individus.
+
+Regardons maintenant les conséquences que peut avoir l'utilisation de telles 
+données sur les prises de décisions.
+
+## Parcoursup
+
+```{r ps}
+ps20 <- read.csv2("fr-esr-parcoursup-2020-xls.csv",dec=',') %>%
+  rename(
+    Libellé.formation = Filière.de.formation.détaillée,
+    Filière.de.formation.détaillée = Filière.de.formation.détaillée.1
+  ) %>%
+  select(-X..d.admis.néo.bacheliers.issus.du.même.établissement..BTS.CPGE.)
+```
+
+Pour évaluer les possibles conséquences de l'utilisation d'un ordre de mauvaise 
+qualité sur les décisions d'affectation, nous allons utiliser le jeu de données 
+`Parcoursup : propositions d'admission dans l'enseignement supérieur des élèves de terminale diplômés du baccalauréat général selon leurs enseignements de spécialité en 2020`.
+
+A l'échelle des formations, le critère critique pour construire un ordre total
+entre les candidatures est le nombre de ces candidatures. 
+
+La distribution du nombre de candidatures montre que 10% des formations ont moins 
+de 100 candidatures, et 25% en ont plus de mille. 
+Quelques centaines de formations ont plus de 10 000 candidatures.
+
+
+```{r ps.distrib}
+ps20 %>%
+  group_by(candidatures = cut(Effectif.total.des.candidats.en.phase.principale,
+                            breaks=c(0,50,100,250,500,1000,2000,4000,20000),
+                            right = FALSE)) %>%
+  summarise(nombre=n()) %>%
+  ggplot(aes(x=candidatures,y=nombre,fill=candidatures)) +
+  geom_col() +
+  scale_fill_brewer(palette = "Reds")
+```
+
+```{r ps.distrib.cdf}
+ps20 %>%
+  ggplot(aes(x=Effectif.total.des.candidats.en.phase.principale)) +
+  stat_ecdf() +
+  scale_x_log10(limits = c(1e1,1e4))
+```
+
+
+
+```{r ps.distrib.2}
+ps20 %>%
+  ggplot(aes(x=reorder(Filière.de.formation.très.agrégée,Effectif.total.des.candidats.en.phase.principale, FUN=max),
+             y=Effectif.total.des.candidats.en.phase.principale)) +
+  geom_boxplot()
+```
+
+```{r ps.distrib.points}
+ps20 %>%
+  ggplot(aes(x=Capacité.de.l.établissement.par.formation,y=Effectif.total.des.candidats.en.phase.principale,
+             color=Filière.de.formation.très.agrégée)) +
+  geom_point()
+```
+
+Pour illustrer la difficulté, prenons les 9 formations recevant le plus de 
+candidatures. Il s'agit d'un groupe d'écoles d'ingénieur, de formations en médecine, 
+et de Licences, avec des capacité d'accueil entre 220 et 1260 places.
+
+```{r ps.distrib.max}
+ps20 %>%
+  arrange(desc(Effectif.total.des.candidats.en.phase.principale)) %>%
+  select(Filière.de.formation.très.agrégée,Libellé.formation,Effectif.total.des.candidats.en.phase.principale,Capacité.de.l.établissement.par.formation) %>%
+  head(9) %>%
+  kableExtra::kable()
+```
+
+Regardons maintenant les mention des candidats admis dans ces formations :
+
+```{r ps.distrib.max.mention}
+ps20 %>%
+  arrange(desc(Effectif.total.des.candidats.en.phase.principale)) %>%
+  head(9) %>%
+  mutate(id = LETTERS[row_number()]) %>% 
+  pivot_longer(
+    c(Dont.effectif.des.admis.néo.bacheliers.sans.mention.au.bac:Dont.effectif.des.admis.néo.bacheliers.avec.mention.Très.Bien.au.bac),
+    names_prefix = "Dont.effectif.des.admis.néo.bacheliers.",
+    names_to = "Mention",
+    values_to = "Admis"
+  ) %>%
+  mutate(Mention = factor(Mention,levels=c("sans.mention.au.bac","avec.mention.Assez.Bien.au.bac","avec.mention.Bien.au.bac","avec.mention.Très.Bien.au.bac"), labels=c("Sans","AB","B","TB"))) %>%
+  mutate(label = paste0("(",id,") ",Effectif.total.des.candidats.en.phase.principale," candidats / ",Capacité.de.l.établissement.par.formation," places")) %>%
+  ggplot(aes(x=Mention,y=Admis,fill=Mention)) +
+  geom_col() +
+  facet_wrap(.~label)
+```
+
+On peut constater des profils assez variés, allant de formations ne recrutant que 
+des mentions TB (A), à des formation recrutant plus de mentions B (E). 
+
+Ajoutons à ces données celles des candidatures. Malheureusement, ces données ne 
+sont pas disponibles dans le jeu de données. Nous allons donc faire l'hypothèse
+que leur distribution est identique à la distribution des Bac S. 
+En réalité, les candidatures sont sans doute encore plus concentrées qu'on l'estime ici.
+En effet, les lycéens les mieux classés candidatent plus volontiers dans les 
+formations les plus demandées, et vice-versa. Notre hypothèse conduit donc à 
+minimiser la difficulté de construire un ordre total parmi les candidatures.
+
+
+```{r ps.distrib.max.mention.cand}
+menratio <- bac %>%
+  group_by(Mention) %>%
+  summarise(
+    Tout.Effectif = sum(BacGen_S.Effectif),
+    Max = max(BacGen_S.Effectif)) %>%
+  filter(Mention != "Non admis") %>%
+  mutate(
+    Ratio = Tout.Effectif / sum(Tout.Effectif),
+    Ratio.max = Max / Tout.Effectif) %>%
+  mutate(Mention = factor(Mention,labels=c("Aucune","AB","B","TB")))
+  
+ps20 %>%
+  arrange(desc(Effectif.total.des.candidats.en.phase.principale)) %>%
+  head(9) %>%
+  mutate(id = LETTERS[row_number()]) %>% 
+  pivot_longer(
+    c(Dont.effectif.des.admis.néo.bacheliers.sans.mention.au.bac:Dont.effectif.des.admis.néo.bacheliers.avec.mention.Très.Bien.au.bac),
+    names_prefix = "Dont.effectif.des.admis.néo.bacheliers.",
+    names_to = "Mention",
+    values_to = "Admis"
+  ) %>%
+  mutate(Mention = factor(Mention,levels=c("sans.mention.au.bac","avec.mention.Assez.Bien.au.bac","avec.mention.Bien.au.bac","avec.mention.Très.Bien.au.bac"), labels=c("Aucune","AB","B","TB"))) %>%
+  left_join(menratio) %>%
+  mutate(Candidats = round(Effectif.total.des.candidats.en.phase.principale * Ratio)) %>%
+  pivot_longer(c(Candidats,Admis), names_to = "Type", values_to = "Nombre") %>%
+  mutate(label = paste0("(",id,") ",Effectif.total.des.candidats.en.phase.principale," candidats / ",Capacité.de.l.établissement.par.formation," places")) %>%
+  ggplot(aes(x=Mention,y=Nombre,fill=Mention, alpha=Type)) +
+    geom_col(color="black", position = "identity") +
+    scale_alpha_manual(values=c(1,0.5)) +
+    facet_wrap(.~label)
+```
+
+La différence entre le nombre de candidats et le nombre d'admis s'expliquer par
+deux raisons :
+
+- par le haut : le désistement des candidats préférant une autre formation ;
+- par le bas : la non admission en raison d'un classement trop bas.
+
+Avec un ordre par mention, ces deux raisons se confondent dans le même groupe 
+pour les formations ne recrutant que dans une seule mention.
+Les données ne permettent par exemple pas de distinguer ces deux cas dans les
+formations (A), (B), (G) et (I).
+
+En revanche, pour les formations recrutant dans plusieurs mentions, 
+les non-admissions arrivent essentiellement dans la mention la plus basse du 
+recrutement : les mentions Bien pour les formations (F) et (H), et les mentions 
+Assez bien pour les formations (C), (D) et (E). Appelons cette mention « frontière » 
+car c'est dans celle-ci que se situe la frontière du recrutement.
+
+On peut souvent constater un flou dans cette frontière, par exemple avec le
+recrutement d'un petit nombre de sans mention, qui peut s'expliquer soit par
+une différence significative entre les résultats du bac et le classement de la 
+candidature, soit par l'application de quotas. Ignorons ces cas.
+
+Concentrons-nous sur la frontière des formations (C), (D) et (E) :
+
+
+```{r ps.distrib.frontiere}
+ps20 %>%
+  arrange(desc(Effectif.total.des.candidats.en.phase.principale)) %>%
+  head(9) %>%
+  mutate(id = LETTERS[row_number()]) %>% 
+  filter(id %in% c("C","D","E")) %>%
+  pivot_longer(
+    c(Dont.effectif.des.admis.néo.bacheliers.sans.mention.au.bac:Dont.effectif.des.admis.néo.bacheliers.avec.mention.Très.Bien.au.bac),
+    names_prefix = "Dont.effectif.des.admis.néo.bacheliers.",
+    names_to = "Mention",
+    values_to = "Admis"
+  ) %>%
+  mutate(Mention = factor(Mention,levels=c("sans.mention.au.bac","avec.mention.Assez.Bien.au.bac","avec.mention.Bien.au.bac","avec.mention.Très.Bien.au.bac"), labels=c("Aucune","AB","B","TB"))) %>%
+  left_join(menratio) %>%
+  mutate(Candidats = round(Effectif.total.des.candidats.en.phase.principale * Ratio)) %>%
+  mutate(label = paste0("(",id,") ",Candidats," candidats / ",Admis," places")) %>%
+  pivot_longer(c(Candidats,Admis), names_to = "Type", values_to = "Nombre") %>%
+  filter(Mention == "AB") %>%
+  ggplot(aes(x=Mention,y=Nombre,fill=Mention, alpha=Type)) +
+    geom_col(color="black", position = "identity") +
+    scale_alpha_manual(values=c(1,0.5)) +
+    facet_wrap(.~label)
+```
+
+Selon notre hypothèse, la formation (C) a admis 88 candidats avec mention AB sur 4400,
+la formation (D) 162 sur 3884, et la formation (E) 122 sur 3866.
+
+Or, si on considère que la mention est la bonne précision pour ordonner les 
+candidatures, les admis ne sont pas distinguables des non-admis : la décision 
+n'est pas équitable.
+
+Ajoutons plus de précision dans les notes. 
+Si on rapporte le nombre maximal de candidats partageant exactement la même note
+au niveau national à l'effectif de ces formations, on peut faire le calcul suivant :
+768 candidats partagent la même note au dixième de point à la frontière dans la 
+formation (C), 678 dans formation (E) et 675 dans la formation (F).
+
+```{r ps.distrib.frontiere.nb}
+ps20 %>%
+  arrange(desc(Effectif.total.des.candidats.en.phase.principale)) %>%
+  head(9) %>%
+  mutate(id = LETTERS[row_number()]) %>% 
+  filter(id %in% c("C","D","E")) %>%
+  pivot_longer(
+    c(Dont.effectif.des.admis.néo.bacheliers.sans.mention.au.bac:Dont.effectif.des.admis.néo.bacheliers.avec.mention.Très.Bien.au.bac),
+    names_prefix = "Dont.effectif.des.admis.néo.bacheliers.",
+    names_to = "Mention",
+    values_to = "Admis"
+  ) %>%
+  mutate(Mention = factor(Mention,levels=c("sans.mention.au.bac","avec.mention.Assez.Bien.au.bac","avec.mention.Bien.au.bac","avec.mention.Très.Bien.au.bac"), labels=c("Aucune","AB","B","TB"))) %>%
+  left_join(menratio) %>%
+  mutate(Candidats = round(Effectif.total.des.candidats.en.phase.principale * Ratio)) %>%
+  mutate(label = paste0("(",id,") ",Candidats," candidats / ",Admis," places")) %>%
+  pivot_longer(c(Candidats,Admis), names_to = "Type", values_to = "Nombre") %>%
+  filter(Mention == "AB") %>%
+  mutate(candidats_confondus = round(Nombre * Ratio.max)) %>% 
+  filter(Type == "Candidats") %>%
+  select(id,Nombre, candidats_confondus)
+
+```
+
+On montre ainsi qu'un dixième de point de plus ou de moins peut faire gagner ou perdre
+des centaines de places, et conduire des candidats à être finalement admis ou non, 
+sur la base d'une donnée sans pertinence vis-à-vis de l'objectif recherché.
+Là encore, l'application de l'algorithme n'est pas équitable, mais seulement pour 
+les candidats se situation à la frontière. Les candidats qui en sont loin recevront
+la même décision, malgré l'imprécision sur rang qui leur a été attribué.
+
+Ce problème est donc d'autant plus fort que la frontière se situe dans les zones où la 
+densité de candidats est la plus forte, mais il est aussi d'autant plus faible que 
+le nombre de candidatures est bas pour un nombre de places élevé.
+
+Ainsi, nous avons présenté ici un échantillon des cas extrêmes, qui, sans être exceptionnels, ne 
+représentent pas la majorité des formations en France. A l'autre extrême, dès lors 
+qu'il y a assez de places pour tous les candidats, l'algorithme est parfaitement 
+équitable.
+
+Nous montrons ainsi que le même algorithme peut proposer des solutions 
+équitables ou non, selon le contexte dans lequel il est employé, qui dépend
+de choix de conception et d'utilisation de l'algorithme, mais aussi de choix 
+possiblement politiques, à priori extérieur au problème.
+
+## Conclusion
+
+Pour conclure, en utilisant les données ouvertes sur les notes du bac et les 
+recrutements Parcoursup, nous avons montré la difficulté de construire un ordre
+total entre des candidats aux formations à l'enseignement supérieur en France, 
+en utilisant les notes moyennes au baccalauréat.
+Cette difficulté s'explique ici par la qualité limitée des données en regard de 
+leur usage.
+
+Les conséquences de cette difficulté se manifestent cependant de façon potentiellement
+très différente selon le contexte d'usage. Le même algorithme peut être très 
+équitable sur une formation mais pas sur l'autre, et même sur un individu et pas 
+sur l'autre.
+
+Nous avons montré que les inéquités se concentrent à la frontière de bascule 
+entre plusieurs décisions. Cette frontière ici est située au rang du dernier admis, 
+qui peut de ne pas être distinguable du premier non-admis. 
+Lorsque c'est le cas, la décision peut être considérée comme inéquitable, sinon arbitraire.
+
+L'identification de la frontière entre ordre pertinent et arbitraire permet 
+d'envisager des pistes pour augmenter l'équité de l'affectation, par exemple
+par l'utilisation d'un ordre total loin de la frontière, et par le recours au 
+tirage au sort dès lors qu'on s'en approche, afin d'être arbitaire mais au moins
+pas inéquitable.
+
+
+

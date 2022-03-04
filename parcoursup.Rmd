@@ -31,12 +31,11 @@ ps20 <- read.csv2("fr-esr-parcoursup-2020-xls.csv",dec=',') %>%
   ) %>%
   select(-X..d.admis.néo.bacheliers.issus.du.même.établissement..BTS.CPGE.)
 
-ps21 <- read.csv2("fr-esr-parcoursup-2021-xls.csv",dec=',') %>%
+ps21 <- read.csv2("fr-esr-parcoursup-2021.csv",dec='.') %>%
   rename(
     Libellé.formation = Filière.de.formation.détaillée,
-    Filière.de.formation.détaillée = Filière.de.formation.détaillée.1
-  ) %>%
-  select(-X..d.admis.néo.bacheliers.issus.du.même.établissement..BTS.CPGE.)
+    Filière.de.formation.détaillée = Filière.de.formation.détaillée.bis
+  ) 
 
 ps <- bind_rows(ps18,ps19,ps20,ps21) %>%
   mutate(Filière.de.formation.très.agrégée = fct_recode(
@@ -200,12 +199,15 @@ ifsi %>%
 ```{r ifsi3}
 ps %>% 
   filter(Filière.de.formation.très.agrégée == "IFSI") %>%
-  group_by(Session) %>%
+  group_by(Session,Filière.de.formation.détaillée) %>%
   summarise(
     Filière = "IFSI",
     Admissions = sum(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.),
+    Capacité = sum(Capacité.de.l.établissement.par.formation),
     Candidatures = sum(Effectif.total.des.candidats.pour.une.formation)) %>%
-  pivot_longer(c(Admissions,Candidatures), names_to="Type", values_to = "Nombre") %>%
+  pivot_longer(c(Admissions,Capacité,Candidatures), names_to="Type", values_to = "Nombre") %>%
+  
+  filter(Type != "Candidatures") %>%
 
   ggplot(aes(x=Session,y=Nombre,group=Type)) +
     geom_line(aes(color=Type), size=1) +
@@ -214,4 +216,33 @@ ps %>%
     expand_limits(y=c(0,30000)) +
     theme_cpesr_cap() +
     ggtitle("Parcoursup : nombre de candidatures et d'admissions en IFSI")
+```
+
+
+### Discrimibilité 
+
+```{r disc}
+ps.mentions <- ps %>%
+  filter(Session==2021) %>%
+  mutate(
+    Admis.Mention_inconnue = Dont.effectif.des.admis.néo.bacheliers.sans.information.sur.la.mention.au.bac,
+    Admis.Sans_mention = Dont.effectif.des.admis.néo.bacheliers.sans.mention.au.bac,
+    Admis.AB = Dont.effectif.des.admis.néo.bacheliers.avec.mention.Assez.Bien.au.bac,
+    Admis.B = Dont.effectif.des.admis.néo.bacheliers.avec.mention.Bien.au.bac,
+    Admis.TB = Dont.effectif.des.admis.néo.bacheliers.avec.mention.Très.Bien.au.bac,
+    Non_Admis.Mention_inconnue = Admis.Mention_inconnue / X..d.admis.néo.bacheliers.sans.information.sur.la.mention.au.bac * 100,
+    Non_Admis.Sans_mention = Admis.Sans_mention / X..d.admis.néo.bacheliers.sans.mention.au.bac * 100,
+    Non_Admis.AB = Admis.AB / X..d.admis.néo.bacheliers.avec.mention.Assez.Bien.au.bac * 100,
+    Non_Admis.B = Admis.B / X..d.admis.néo.bacheliers.avec.mention.Très.Bien.au.bac * 100,
+    Non_Admis.TB = Admis.TB / X..d.admis.néo.bacheliers.avec.mention.Très.Bien.au.bac * 100) %>%
+  mutate(across(Admis.Mention_inconnue:Non_Admis.TB,~replace(.x,!is.finite(.x),0)))
+```
+
+```{r disc.test, eval=FALSE}
+ps.mentions %>%
+  mutate(
+    test1 = Admis.Mention_inconnue + Admis.Sans_mention + Admis.AB + Admis.B + Admis.TB + Non_Admis.Mention_inconnue + Non_Admis.Sans_mention + Non_Admis.AB + Non_Admis.B + Non_Admis.TB,
+    test2 = Effectif.total.des.candidats.pour.une.formation,
+    test3 = test1 - test2
+  )  
 ```

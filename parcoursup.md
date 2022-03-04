@@ -82,7 +82,7 @@ Voir les données
 | X..d.admis.dont.filles                                                                                                                           | TRUE | TRUE | TRUE | TRUE |
 | X..d.admis.néo.bacheliers.issus.de.la.même.académie                                                                                              | TRUE | TRUE | TRUE | TRUE |
 | X..d.admis.néo.bacheliers.issus.de.la.même.académie..Paris.Créteil.Versailles.réunies.                                                           | TRUE | TRUE | TRUE | TRUE |
-| X..d.admis.néo.bacheliers.issus.du.même.établissement..BTS.CPGE.                                                                                 | TRUE | TRUE | NA   | NA   |
+| X..d.admis.néo.bacheliers.issus.du.même.établissement..BTS.CPGE.                                                                                 | TRUE | TRUE | NA   | TRUE |
 | X..d.admis.néo.bacheliers.boursiers                                                                                                              | TRUE | TRUE | TRUE | TRUE |
 | X..d.admis.néo.bacheliers                                                                                                                        | TRUE | TRUE | TRUE | TRUE |
 | X..d.admis.néo.bacheliers.sans.information.sur.la.mention.au.bac                                                                                 | TRUE | TRUE | TRUE | TRUE |
@@ -91,11 +91,11 @@ Voir les données
 | X..d.admis.néo.bacheliers.avec.mention.Bien.au.bac                                                                                               | TRUE | TRUE | TRUE | TRUE |
 | X..d.admis.néo.bacheliers.avec.mention.Très.Bien.au.bac                                                                                          | TRUE | TRUE | TRUE | TRUE |
 | X..d.admis.néo.bacheliers.généraux                                                                                                               | TRUE | TRUE | TRUE | TRUE |
-| Dont…d.admis.avec.mention                                                                                                                        | TRUE | TRUE | TRUE | TRUE |
+| Dont…d.admis.avec.mention                                                                                                                        | TRUE | TRUE | TRUE | NA   |
 | X..d.admis.néo.bacheliers.technologiques                                                                                                         | TRUE | TRUE | TRUE | TRUE |
-| Dont…d.admis.avec.mention.1                                                                                                                      | TRUE | TRUE | TRUE | TRUE |
+| Dont…d.admis.avec.mention.1                                                                                                                      | TRUE | TRUE | TRUE | NA   |
 | X..d.admis.néo.bacheliers.professionnels                                                                                                         | TRUE | TRUE | TRUE | TRUE |
-| Dont…d.admis.avec.mention.2                                                                                                                      | TRUE | TRUE | TRUE | TRUE |
+| Dont…d.admis.avec.mention.2                                                                                                                      | TRUE | TRUE | TRUE | NA   |
 | tri                                                                                                                                              | TRUE | TRUE | TRUE | TRUE |
 | Statut.de.l.établissement.de.la.filière.de.formation..public..privé..                                                                            | NA   | TRUE | TRUE | TRUE |
 | Dont.effectif.des.admis.ayant.reçu.leur.proposition.d.admission.à.l.ouverture.de.la.procédure.principale                                         | NA   | TRUE | TRUE | TRUE |
@@ -131,6 +131,9 @@ Voir les données
 | Commune.de.l.établissement                                                                                                                       | NA   | NA   | NA   | TRUE |
 | Dont.effectif.des.admis.néo.bacheliers.avec.mention.Très.Bien.avec.félicitations.au.bac                                                          | NA   | NA   | NA   | TRUE |
 | X..d.admis.néo.bacheliers.avec.mention.Très.Bien.avec.félicitations.au.bac                                                                       | NA   | NA   | NA   | TRUE |
+| Dont…d.admis.avec.mention..BG.                                                                                                                   | NA   | NA   | NA   | TRUE |
+| Dont…d.admis.avec.mention..BT.                                                                                                                   | NA   | NA   | NA   | TRUE |
+| Dont…d.admis.avec.mention..BP.                                                                                                                   | NA   | NA   | NA   | TRUE |
 | list\_com                                                                                                                                        | NA   | NA   | NA   | TRUE |
 | Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP.                                     | NA   | NA   | NA   | TRUE |
 | LIB\_FOR\_VOE\_INS                                                                                                                               | NA   | NA   | NA   | TRUE |
@@ -164,4 +167,8 @@ Voir les données
 
 ![](parcoursup_files/figure-gfm/ifsi2-1.png)<!-- -->
 
+    ## `summarise()` has grouped output by 'Session'. You can override using the `.groups` argument.
+
 ![](parcoursup_files/figure-gfm/ifsi3-1.png)<!-- -->
+
+### Discrimibilité
