@@ -94,7 +94,8 @@ ayant 11.9 mérite 12, et pas tel autre. On peut donc construire ordre
 plus pertinente des candidats en réduisant la précision des données, par
 exemple en regroupant les notes avec une précision de 1/1 :
 
-    ## `summarise()` has grouped output by 'Moyenne'. You can override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'Moyenne'. You can override using the
+    ## `.groups` argument.
 
 ![](inequite_files/figure-gfm/bac.distrib.1-1.png)<!-- --> On augmente
 ainsi la pertinence de l’ordre entre les candidats, mais au prix d’une
@@ -104,7 +105,8 @@ jusqu’à 150 000 candidats partagent la même note.
 En regardant le seul Bac S, on dépasse encore les 30 000 candidats par
 note :
 
-    ## `summarise()` has grouped output by 'Moyenne'. You can override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'Moyenne'. You can override using the
+    ## `.groups` argument.
 
 ![](inequite_files/figure-gfm/bac.distrib.1.s-1.png)<!-- -->
 
@@ -144,15 +146,9 @@ centaines de formations ont plus de 10 000 candidatures.
 
 ![](inequite_files/figure-gfm/ps.distrib-1.png)<!-- -->
 
-    ## Warning: Transformation introduced infinite values in continuous x-axis
-
-    ## Warning: Removed 292 rows containing non-finite values (stat_ecdf).
-
 ![](inequite_files/figure-gfm/ps.distrib.cdf-1.png)<!-- -->
 
 ![](inequite_files/figure-gfm/ps.distrib.2-1.png)<!-- -->
-
-    ## Warning: Removed 1 rows containing missing values (geom_point).
 
 ![](inequite_files/figure-gfm/ps.distrib.points-1.png)<!-- -->
 
@@ -314,7 +310,7 @@ des Organisations - Paris - Classique
 Regardons maintenant les mention des candidats admis dans ces formations
 :
 
-![](inequite_files/figure-gfm/ps.distrib.max.mention-1.png)<!-- -->
+![](inequite_files/figure-gfm/ps%3C.distrib.max.mention-1.png)<!-- -->
 
 On peut constater des profils assez variés, allant de formations ne
 recrutant que des mentions TB (A), à des formation recrutant plus de
@@ -329,7 +325,7 @@ candidatent plus volontiers dans les formations les plus demandées, et
 vice-versa. Notre hypothèse conduit donc à minimiser la difficulté de
 construire un ordre total parmi les candidatures.
 
-    ## Joining, by = "Mention"
+    ## Joining, by = "Grade"
 
 ![](inequite_files/figure-gfm/ps.distrib.max.mention.cand-1.png)<!-- -->
 
@@ -360,7 +356,7 @@ ces cas.
 
 Concentrons-nous sur la frontière des formations (C), (D) et (E) :
 
-    ## Joining, by = "Mention"
+    ## Joining, by = "Grade"
 
 ![](inequite_files/figure-gfm/ps.distrib.frontiere-1.png)<!-- -->
 
@@ -379,14 +375,14 @@ national à l’effectif de ces formations, on peut faire le calcul suivant
 frontière dans la formation (C), 678 dans formation (E) et 675 dans la
 formation (F).
 
-    ## Joining, by = "Mention"
+    ## Joining, by = "Grade"
 
     ## # A tibble: 3 × 3
     ##   id    Nombre candidats_confondus
     ##   <chr>  <dbl>               <dbl>
-    ## 1 C       4400                 768
-    ## 2 D       3884                 678
-    ## 3 E       3866                 675
+    ## 1 C       4839                 792
+    ## 2 D       4271                 699
+    ## 3 E       4252                 696
 
 On montre ainsi qu’un dixième de point de plus ou de moins peut faire
 gagner ou perdre des centaines de places, et conduire des candidats à
@@ -436,3 +432,16 @@ permet d’envisager des pistes pour augmenter l’équité de l’affectation,
 par exemple par l’utilisation d’un ordre total loin de la frontière, et
 par le recours au tirage au sort dès lors qu’on s’en approche, afin
 d’être arbitaire mais au moins pas inéquitable.
+
+### Annexe
+
+Nombre de formations selon le nombre de regroupements (files d’attente)
+différentes.
+
+    ## # A tibble: 4 × 3
+    ##   nb_grp nb_formation prop 
+    ##    <int>        <int> <chr>
+    ## 1      1         6561 52%  
+    ## 2      2         2118 17%  
+    ## 3      3         3833 31%  
+    ## 4      5           14 0%

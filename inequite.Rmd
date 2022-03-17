@@ -4,7 +4,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 library(tidyverse)
 library(ggcpesrthemes)
 theme_set(theme_cpesr())
@@ -26,12 +26,12 @@ cn <-paste0(
 bac <- readxl::read_xlsx("HC-504-Distribution-moyenne-bac-2018-2020-filière-série.xlsx", 
                   sheet = "2020", skip = 7, n_max = 201, na = ".", 
                   col_names = c("Moyenne",cn)) %>%
-  mutate(across(everything(), ~ replace_na(.x,0))) %>%
   mutate(Moyenne = recode(Moyenne, "20 ou plus" = "20")) %>%
   mutate(Moyenne = as.numeric(str_replace(Moyenne,",","."))) %>%
-  mutate(Mention = cut(Moyenne, right = FALSE,
+  mutate(across(everything(), ~ replace_na(.x,0))) %>%
+  mutate(Grade = cut(Moyenne, right = FALSE,
                        breaks=c(0,10,12,14,16,21),
-                       labels = c("Non admis","Sans mention","Assez bien","Bien","Très bien")))
+                       labels = c("Fail","Standard pass", "Honour","High honour","Highest honour")))
 
 ```
 
@@ -77,10 +77,13 @@ issues du jeu de données `la distribution des notes au baccalauréat en 2020`.
 En 2020, 729 361 lycéens ont passé leur bac. Le jeu de données présente la 
 distribution de leur note moyenne finale, avec une précision de 1/10e de point :
 
-```{r bac.distrib}
+```{r bac.distrib, fig.retina=TRUE}
 bac %>%
-  ggplot(aes(x=Moyenne,y=Tout.Effectif,color=Mention,fill=Mention)) +
-  geom_col()
+  ggplot(aes(x=Moyenne,y=Tout.Effectif,color=Grade,fill=Grade)) +
+  geom_col() +
+  xlab("Average averall mark") + 
+  ylab("Number of candidates") 
+  #ggtitle("Distribution of the average overall marks by grade\nof candidates in the french baccalauréat")
 ```
 
 On y constate trois choses :
@@ -97,7 +100,7 @@ série scientifique (S) :
 
 ```{r bac.distrib.s}
 bac %>%
-  ggplot(aes(x=Moyenne,y=BacGen_S.Effectif,color=Mention,fill=Mention)) +
+  ggplot(aes(x=Moyenne,y=BacGen_S.Effectif,color=Grade,fill=Grade)) +
   geom_col() 
 ```
 
@@ -130,9 +133,9 @@ précision des données, par exemple en regroupant les notes avec une précision
 
 ```{r bac.distrib.1}
 bac %>%
-  group_by(Moyenne = floor(Moyenne), Mention) %>%
+  group_by(Moyenne = floor(Moyenne), Grade) %>%
   summarise(Tout.Effectif = sum(Tout.Effectif)) %>%
-  ggplot(aes(x=Moyenne,y=Tout.Effectif,color=Mention,fill=Mention)) +
+  ggplot(aes(x=Moyenne,y=Tout.Effectif,color=Grade,fill=Grade)) +
   geom_col()
 ```
 On augmente ainsi la pertinence de l'ordre entre les candidats, mais au prix d'une 
@@ -143,9 +146,9 @@ En regardant le seul Bac S, on dépasse encore les 30 000 candidats par note :
 
 ```{r bac.distrib.1.s}
 bac %>%
-  group_by(Moyenne = floor(Moyenne), Mention) %>%
+  group_by(Moyenne = floor(Moyenne), Grade) %>%
   summarise(Tout.Effectif = sum(BacGen_S.Effectif)) %>%
-  ggplot(aes(x=Moyenne,y=Tout.Effectif,color=Mention,fill=Mention)) +
+  ggplot(aes(x=Moyenne,y=Tout.Effectif,color=Grade,fill=Grade)) +
   geom_col()
 ```
 
@@ -155,10 +158,13 @@ qui ont sans doute la meilleure pertinence pédagogique (soit une précision de 
 
 ```{r bac.distrib.mention}
 bac %>%
-  group_by(Mention) %>%
+  group_by(Grade) %>%
   summarise(Tout.Effectif = sum(Tout.Effectif)) %>%
-  ggplot(aes(x=Mention,y=Tout.Effectif,color=Mention,fill=Mention)) +
-  geom_col()
+  ggplot(aes(x=Grade,y=Tout.Effectif,color=Grade,fill=Grade)) +
+  geom_col() +
+  xlab("Grade") + 
+  ylab("Number of candidates") 
+  #ggtitle("Distribution of the grade of candidates in the french baccalauréat")
 ```
 
 Nous dépassons alors les 200 000 candidats par rang, et presque 60 000 en ne 
@@ -166,9 +172,9 @@ regardant que le Bac S :
 
 ```{r bac.distrib.mention.S}
 bac %>%
-  group_by(Mention) %>%
+  group_by(Grade) %>%
   summarise(Tout.Effectif = sum(BacGen_S.Effectif)) %>%
-  ggplot(aes(x=Mention,y=Tout.Effectif,color=Mention,fill=Mention)) +
+  ggplot(aes(x=Grade,y=Tout.Effectif,color=Grade,fill=Grade)) +
   geom_col()
 ```
 
@@ -188,7 +194,20 @@ ps20 <- read.csv2("fr-esr-parcoursup-2020-xls.csv",dec=',') %>%
     Libellé.formation = Filière.de.formation.détaillée,
     Filière.de.formation.détaillée = Filière.de.formation.détaillée.1
   ) %>%
-  select(-X..d.admis.néo.bacheliers.issus.du.même.établissement..BTS.CPGE.)
+  select(-X..d.admis.néo.bacheliers.issus.du.même.établissement..BTS.CPGE.) %>%
+  mutate(Training = recode(Filière.de.formation.très.agrégée,
+                      "IFSI" = "Medical", 
+                      "Licence" = "University", 
+                      "Ecole d'Ingénieur" = "Vocational", 
+                      "Autre formation" = "Vocational", 
+                      "EFTS" = "Vocational", 
+                      "BTS"  = "Vocational", 
+                      "Ecole de Commerce" = "Vocational", 
+                      "DUT" = "Vocational", 
+                      "Licence_Las" = "Medical", 
+                      "PASS" = "Medical", 
+                      "CPGE" = "Preparatory")
+  )
 ```
 
 Pour évaluer les possibles conséquences de l'utilisation d'un ordre de mauvaise 
@@ -230,11 +249,40 @@ ps20 %>%
   geom_boxplot()
 ```
 
-```{r ps.distrib.points}
-ps20 %>%
-  ggplot(aes(x=Capacité.de.l.établissement.par.formation,y=Effectif.total.des.candidats.en.phase.principale,
-             color=Filière.de.formation.très.agrégée)) +
-  geom_point()
+```{r ps.distrib.points, fig.retina=TRUE}
+
+p1 <- ps20  %>%
+    ggplot(aes(x=Capacité.de.l.établissement.par.formation,y=Effectif.total.des.candidats.en.phase.principale,
+               color=Training)) +
+    geom_point(alpha=0.5, size=1) +
+    geom_hline(yintercept = 1000) +
+    xlab("Training capacity (maximum number of students)") +
+    ylab("Number of candidates") +
+    scale_y_continuous(breaks=c(0,1000,5000,10000,15000)) +
+    theme(axis.title.x = element_text(margin = margin(t = -50)))
+
+p2 <-  ps20  %>%
+    ggplot(aes(x=Training,y=Effectif.total.des.candidats.en.phase.principale,
+               fill=Training)) +
+    geom_hline(yintercept = 1000) +
+    geom_violin() +
+    scale_y_continuous(breaks=c(0,1000,5000,10000,15000)) +
+    theme(
+      axis.text.x = element_text(angle=90), axis.title.x = element_blank(), 
+      axis.text.y = element_blank(), axis.title.y = element_blank()) 
+
+legend <- cowplot::get_legend(
+  p1 + guides(color=guide_legend(override.aes = list(size=5,alpha=1)))
+)
+
+cowplot::plot_grid(ncol = 1, rel_heights = c(7,1),
+  cowplot::plot_grid(rel_widths = c(2,1), align = "h",
+    p1 + theme(legend.position="none"),
+    p2 + theme(legend.position="none")
+    ),
+  legend
+)
+  
 ```
 
 Pour illustrer la difficulté, prenons les 9 formations recevant le plus de 
@@ -251,7 +299,7 @@ ps20 %>%
 
 Regardons maintenant les mention des candidats admis dans ces formations :
 
-```{r ps.distrib.max.mention}
+```{r ps<.distrib.max.mention, fig.width=8, fig.asp=3/4, fig.retina=TRUE}
 ps20 %>%
   arrange(desc(Effectif.total.des.candidats.en.phase.principale)) %>%
   head(9) %>%
@@ -259,14 +307,16 @@ ps20 %>%
   pivot_longer(
     c(Dont.effectif.des.admis.néo.bacheliers.sans.mention.au.bac:Dont.effectif.des.admis.néo.bacheliers.avec.mention.Très.Bien.au.bac),
     names_prefix = "Dont.effectif.des.admis.néo.bacheliers.",
-    names_to = "Mention",
+    names_to = "Grade",
     values_to = "Admis"
   ) %>%
-  mutate(Mention = factor(Mention,levels=c("sans.mention.au.bac","avec.mention.Assez.Bien.au.bac","avec.mention.Bien.au.bac","avec.mention.Très.Bien.au.bac"), labels=c("Sans","AB","B","TB"))) %>%
-  mutate(label = paste0("(",id,") ",Effectif.total.des.candidats.en.phase.principale," candidats / ",Capacité.de.l.établissement.par.formation," places")) %>%
-  ggplot(aes(x=Mention,y=Admis,fill=Mention)) +
+  mutate(Grade = factor(Grade,levels=c("fail","sans.mention.au.bac","avec.mention.Assez.Bien.au.bac","avec.mention.Bien.au.bac","avec.mention.Très.Bien.au.bac"), labels=c("Fail","Standard\npass","Honour","High\nhonour","Highest\nHonour"))) %>%
+  mutate(label = paste0("(",id,") ",Effectif.total.des.candidats.en.phase.principale," candidates / ",Capacité.de.l.établissement.par.formation," positions")) %>%
+  ggplot(aes(x=Grade,y=Admis,fill=Grade)) +
   geom_col() +
-  facet_wrap(.~label)
+  facet_wrap(.~label) +
+  scale_fill_manual(values=scales::hue_pal()(5)[2:5]) +
+  ylab("Admitted candidates")
 ```
 
 On peut constater des profils assez variés, allant de formations ne recrutant que 
@@ -281,17 +331,17 @@ formations les plus demandées, et vice-versa. Notre hypothèse conduit donc à
 minimiser la difficulté de construire un ordre total parmi les candidatures.
 
 
-```{r ps.distrib.max.mention.cand}
+```{r ps.distrib.max.mention.cand, fig.width=8, fig.asp=3/4, fig.retina=TRUE}
 menratio <- bac %>%
-  group_by(Mention) %>%
+  group_by(Grade) %>%
   summarise(
-    Tout.Effectif = sum(BacGen_S.Effectif),
-    Max = max(BacGen_S.Effectif)) %>%
-  filter(Mention != "Non admis") %>%
+    Max = max(Tout.Effectif),
+    Tout.Effectif = sum(Tout.Effectif)) %>%
+  filter(Grade != "Non admis") %>%
   mutate(
     Ratio = Tout.Effectif / sum(Tout.Effectif),
     Ratio.max = Max / Tout.Effectif) %>%
-  mutate(Mention = factor(Mention,labels=c("Aucune","AB","B","TB")))
+  mutate(Grade = factor(Grade, labels=c("Fail","Standard\npass","Honour","High\nhonour","Highest\nHonour"))) 
   
 ps20 %>%
   arrange(desc(Effectif.total.des.candidats.en.phase.principale)) %>%
@@ -300,17 +350,19 @@ ps20 %>%
   pivot_longer(
     c(Dont.effectif.des.admis.néo.bacheliers.sans.mention.au.bac:Dont.effectif.des.admis.néo.bacheliers.avec.mention.Très.Bien.au.bac),
     names_prefix = "Dont.effectif.des.admis.néo.bacheliers.",
-    names_to = "Mention",
+    names_to = "Grade",
     values_to = "Admis"
   ) %>%
-  mutate(Mention = factor(Mention,levels=c("sans.mention.au.bac","avec.mention.Assez.Bien.au.bac","avec.mention.Bien.au.bac","avec.mention.Très.Bien.au.bac"), labels=c("Aucune","AB","B","TB"))) %>%
+  mutate(Grade = factor(Grade,levels=c("sans.mention.au.bac","avec.mention.Assez.Bien.au.bac","avec.mention.Bien.au.bac","avec.mention.Très.Bien.au.bac"), labels=c("Standard\npass","Honour","High\nhonour","Highest\nHonour"))) %>%
   left_join(menratio) %>%
   mutate(Candidats = round(Effectif.total.des.candidats.en.phase.principale * Ratio)) %>%
   pivot_longer(c(Candidats,Admis), names_to = "Type", values_to = "Nombre") %>%
-  mutate(label = paste0("(",id,") ",Effectif.total.des.candidats.en.phase.principale," candidats / ",Capacité.de.l.établissement.par.formation," places")) %>%
-  ggplot(aes(x=Mention,y=Nombre,fill=Mention, alpha=Type)) +
+  mutate(label = paste0("(",id,") ",Effectif.total.des.candidats.en.phase.principale," candidates / ",Capacité.de.l.établissement.par.formation," positions")) %>%
+  
+  ggplot(aes(x=Grade,y=Nombre,fill=Grade, alpha=Type)) +
     geom_col(color="black", position = "identity") +
     scale_alpha_manual(values=c(1,0.5)) +
+    scale_fill_manual(values=scales::hue_pal()(5)[2:5]) +
     facet_wrap(.~label)
 ```
 
@@ -348,19 +400,21 @@ ps20 %>%
   pivot_longer(
     c(Dont.effectif.des.admis.néo.bacheliers.sans.mention.au.bac:Dont.effectif.des.admis.néo.bacheliers.avec.mention.Très.Bien.au.bac),
     names_prefix = "Dont.effectif.des.admis.néo.bacheliers.",
-    names_to = "Mention",
+    names_to = "Grade",
     values_to = "Admis"
   ) %>%
-  mutate(Mention = factor(Mention,levels=c("sans.mention.au.bac","avec.mention.Assez.Bien.au.bac","avec.mention.Bien.au.bac","avec.mention.Très.Bien.au.bac"), labels=c("Aucune","AB","B","TB"))) %>%
+  mutate(Grade = factor(Grade,levels=c("sans.mention.au.bac","avec.mention.Assez.Bien.au.bac","avec.mention.Bien.au.bac","avec.mention.Très.Bien.au.bac"), labels=c("Standard\npass","Honour","High\nhonour","Highest\nHonour"))) %>%
   left_join(menratio) %>%
   mutate(Candidats = round(Effectif.total.des.candidats.en.phase.principale * Ratio)) %>%
-  mutate(label = paste0("(",id,") ",Candidats," candidats / ",Admis," places")) %>%
+  mutate(label = paste0("(",id,") ",Candidats," candidates / ",Admis," positions")) %>%
   pivot_longer(c(Candidats,Admis), names_to = "Type", values_to = "Nombre") %>%
-  filter(Mention == "AB") %>%
-  ggplot(aes(x=Mention,y=Nombre,fill=Mention, alpha=Type)) +
-    geom_col(color="black", position = "identity") +
-    scale_alpha_manual(values=c(1,0.5)) +
-    facet_wrap(.~label)
+  filter(Grade == "Honour") %>% 
+  
+  ggplot(aes(x=id, y=Nombre, alpha=Type)) +
+    geom_col(color="black", fill = scales::hue_pal()(5)[3], position = "identity") +
+    scale_alpha_manual(values=c(1,0.5), labels=c("Positions","Candidates")) +
+    facet_wrap(.~label, scales = "free_x") +
+    xlab("Curricula") + ylab("Candidates and positions") 
 ```
 
 Selon notre hypothèse, la formation (C) a admis 88 candidats avec mention AB sur 4400,
@@ -385,19 +439,18 @@ ps20 %>%
   pivot_longer(
     c(Dont.effectif.des.admis.néo.bacheliers.sans.mention.au.bac:Dont.effectif.des.admis.néo.bacheliers.avec.mention.Très.Bien.au.bac),
     names_prefix = "Dont.effectif.des.admis.néo.bacheliers.",
-    names_to = "Mention",
+    names_to = "Grade",
     values_to = "Admis"
   ) %>%
-  mutate(Mention = factor(Mention,levels=c("sans.mention.au.bac","avec.mention.Assez.Bien.au.bac","avec.mention.Bien.au.bac","avec.mention.Très.Bien.au.bac"), labels=c("Aucune","AB","B","TB"))) %>%
+  mutate(Grade = factor(Grade,levels=c("sans.mention.au.bac","avec.mention.Assez.Bien.au.bac","avec.mention.Bien.au.bac","avec.mention.Très.Bien.au.bac"), labels=c("Standard\npass","Honour","High\nhonour","Highest\nHonour"))) %>%
   left_join(menratio) %>%
   mutate(Candidats = round(Effectif.total.des.candidats.en.phase.principale * Ratio)) %>%
   mutate(label = paste0("(",id,") ",Candidats," candidats / ",Admis," places")) %>%
   pivot_longer(c(Candidats,Admis), names_to = "Type", values_to = "Nombre") %>%
-  filter(Mention == "AB") %>%
+  filter(Grade == "Honour") %>%
   mutate(candidats_confondus = round(Nombre * Ratio.max)) %>% 
   filter(Type == "Candidats") %>%
   select(id,Nombre, candidats_confondus)
-
 ```
 
 On montre ainsi qu'un dixième de point de plus ou de moins peut faire gagner ou perdre
@@ -446,5 +499,21 @@ par l'utilisation d'un ordre total loin de la frontière, et par le recours au
 tirage au sort dès lors qu'on s'en approche, afin d'être arbitaire mais au moins
 pas inéquitable.
 
+
+### Annexe
+
+Nombre de formations selon le nombre de regroupements (files d'attente) différentes.
+
+```{r files}
+ps20 %>%
+  mutate(id = row_number()) %>%
+  pivot_longer(starts_with("Regroupement."), names_to = "Regroupement.name", values_to = "Regroupement") %>%
+  filter(Regroupement != "") %>%
+  group_by(id) %>%
+  summarize(nb_grp = n()) %>%
+  group_by(nb_grp) %>%
+  summarise(nb_formation = n()) %>%
+  mutate(prop = scales::percent(nb_formation / sum(nb_formation)))
+```
 
 
