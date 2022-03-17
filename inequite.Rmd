@@ -4,7 +4,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, fig.asp=9/16)
 library(tidyverse)
 library(ggcpesrthemes)
 theme_set(theme_cpesr())
@@ -81,7 +81,7 @@ distribution de leur note moyenne finale, avec une précision de 1/10e de point 
 bac %>%
   ggplot(aes(x=Moyenne,y=Tout.Effectif,color=Grade,fill=Grade)) +
   geom_col() +
-  xlab("Average averall mark") + 
+  xlab("Average overall grade, over 20") + 
   ylab("Number of candidates") 
   #ggtitle("Distribution of the average overall marks by grade\nof candidates in the french baccalauréat")
 ```
