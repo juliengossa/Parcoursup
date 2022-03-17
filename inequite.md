@@ -325,7 +325,7 @@ candidatent plus volontiers dans les formations les plus demandées, et
 vice-versa. Notre hypothèse conduit donc à minimiser la difficulté de
 construire un ordre total parmi les candidatures.
 
-    ## Joining, by = "Grade"
+    ## Joining, by = "Honor"
 
 ![](inequite_files/figure-gfm/ps.distrib.max.mention.cand-1.png)<!-- -->
 
@@ -356,7 +356,7 @@ ces cas.
 
 Concentrons-nous sur la frontière des formations (C), (D) et (E) :
 
-    ## Joining, by = "Grade"
+    ## Joining, by = "Honor"
 
 ![](inequite_files/figure-gfm/ps.distrib.frontiere-1.png)<!-- -->
 
@@ -375,7 +375,7 @@ national à l’effectif de ces formations, on peut faire le calcul suivant
 frontière dans la formation (C), 678 dans formation (E) et 675 dans la
 formation (F).
 
-    ## Joining, by = "Grade"
+    ## Joining, by = "Honor"
 
     ## # A tibble: 3 × 3
     ##   id    Nombre candidats_confondus
