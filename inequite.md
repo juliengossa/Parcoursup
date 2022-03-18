@@ -438,13 +438,19 @@ d’être arbitaire mais au moins pas inéquitable.
 Nombre de formations selon le nombre de regroupements (files d’attente)
 différentes.
 
-    ## # A tibble: 4 × 3
-    ##   nb_grp nb_formation prop 
-    ##    <int>        <int> <chr>
-    ## 1      1         6561 52%  
-    ## 2      2         2118 17%  
-    ## 3      3         3833 31%  
-    ## 4      5           14 0%
+    ## `summarise()` has grouped output by 'id'. You can override using the `.groups`
+    ## argument.
+    ## `summarise()` has grouped output by 'Sélectivité'. You can override using the
+    ## `.groups` argument.
+
+    ## # A tibble: 5 × 4
+    ##   Sélectivité         nb_grp nb_formation prop   
+    ##   <chr>                <int>        <int> <chr>  
+    ## 1 formation non selec      1         2720 21.715%
+    ## 2 formation selective      1         3841 30.664%
+    ## 3 formation selective      2         2118 16.909%
+    ## 4 formation selective      3         3833 30.600%
+    ## 5 formation selective      5           14 0.112%
 
 Pourcentage de candidates
 

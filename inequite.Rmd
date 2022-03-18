@@ -361,7 +361,7 @@ ps20 %>%
   
   ggplot(aes(x=Honor,y=Nombre,fill=Honor, alpha=Type)) +
     geom_col(color="black", position = "identity") +
-    scale_alpha_manual(values=c(1,0.5)) +
+    scale_alpha_manual(values=c(1,0.5), labels=c("Admitted","Candidates")) +
     scale_fill_manual(values=scales::hue_pal()(5)[2:5]) +
     facet_wrap(.~label) +
     ylab("Candidates and admitted candidates")
@@ -510,10 +510,11 @@ ps20 %>%
   mutate(id = row_number()) %>%
   pivot_longer(starts_with("Regroupement."), names_to = "Regroupement.name", values_to = "Regroupement") %>%
   filter(Regroupement != "") %>%
-  group_by(id) %>%
+  group_by(id,Sélectivité) %>%
   summarize(nb_grp = n()) %>%
-  group_by(nb_grp) %>%
+  group_by(Sélectivité,nb_grp) %>%
   summarise(nb_formation = n()) %>%
+  ungroup() %>%
   mutate(prop = scales::percent(nb_formation / sum(nb_formation)))
 ```
 
