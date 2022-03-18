@@ -445,3 +445,13 @@ différentes.
     ## 2      2         2118 17%  
     ## 3      3         3833 31%  
     ## 4      5           14 0%
+
+Pourcentage de candidates
+
+biais : positif si plus le pourcentage d’admises est supérieur au
+pourcentage de candidates, négatif si le pourcentage d’admises est
+inférieur au pourcentage de candidates.
+
+![](inequite_files/figure-gfm/candidates-1.png)<!-- -->
+
+![](inequite_files/figure-gfm/biais2-1.png)<!-- -->

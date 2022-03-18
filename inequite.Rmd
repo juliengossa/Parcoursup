@@ -517,4 +517,29 @@ ps20 %>%
   mutate(prop = scales::percent(nb_formation / sum(nb_formation)))
 ```
 
+Pourcentage de candidates
+
+biais : positif si plus le pourcentage d'admises est supérieur au pourcentage de candidates,
+négatif si le pourcentage d'admises est inférieur au pourcentage de candidates.
+
+```{r candidates}
+biais <- ps20 %>%
+  filter(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis. > 50) %>%
+  mutate(
+    pourcentage.candidates = Dont.effectif.des.candidates.pour.une.formation / Effectif.total.des.candidats.pour.une.formation,
+    pourcentage.admises = Dont.effectif.des.candidates.admises / Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.,
+    biais = pourcentage.candidates - pourcentage.admises,
+    pourcentage.candidates.cut = cut(pourcentage.candidates,seq(0,1,0.1))
+  ) 
+
+biais %>%
+  ggplot(aes(x=pourcentage.candidates, y=biais)) +
+  geom_point()
+```
+
+```{r biais2}
+biais %>%
+  ggplot(aes(x=pourcentage.candidates.cut,y=biais)) +
+  geom_boxplot()
+```
 
