@@ -143,9 +143,11 @@ Voir les données
 
 </details>
 
-    ## `summarise()` has grouped output by 'Session'. You can override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'Session'. You can override using the
+    ## `.groups` argument.
 
-    ## `summarise()` has grouped output by 'Session'. You can override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'Session'. You can override using the
+    ## `.groups` argument.
 
 ![](parcoursup_files/figure-gfm/info.total-1.png)<!-- -->
 
@@ -167,7 +169,8 @@ Voir les données
 
 ![](parcoursup_files/figure-gfm/ifsi2-1.png)<!-- -->
 
-    ## `summarise()` has grouped output by 'Session'. You can override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'Session'. You can override using the
+    ## `.groups` argument.
 
 ![](parcoursup_files/figure-gfm/ifsi3-1.png)<!-- -->
 

@@ -109,6 +109,7 @@ info %>%
 ```{r info.fil.ad}
 info %>% 
   filter(Type %in% c("Admissions")) %>%
+  ungroup() %>%
   complete(Filière,Session, fill = list(Nombre=0)) %>% 
   mutate(Filière = fct_rev(Filière)) %>%
   ggplot(aes(x=Session,y=Nombre, fill=Filière, group=Filière)) +

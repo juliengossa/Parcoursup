@@ -544,3 +544,16 @@ biais %>%
   geom_boxplot()
 ```
 
+
+
+```{r quotas}
+quot <- tibble(
+  Rang = c(seq(1,15),seq(1,15)),
+  Population = c(rep('A',15),rep('B',15)),
+  Prediction = c( c(rep(1.0,5),rep(0.5,5),rep(0.0,5)), c(rep(1.0,5),rep(0.5,5),rep(0.0,5)))
+)
+
+```
+
+
+

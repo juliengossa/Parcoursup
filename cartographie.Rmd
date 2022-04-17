@@ -1,0 +1,193 @@
+---
+title: "Cartographie"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(ggcpesrthemes)
+
+spoilerTable <- function(df) {
+  cat("\n<details>\n")
+  cat("  <summary>Voir les données</summary>\n\n")
+  
+  print(kableExtra::kable(df, format="pipe"))
+  
+  cat("\n\n</details>\n")
+}
+
+formations <- xlsx::read.xlsx("Formations ES.xlsx", sheetIndex = 1)
+candidats <- xlsx::read.xlsx("Candidats ES2024.xlsx", sheetIndex = 1)
+codes.lycées <- unique(candidats$NA.)
+code.region <- "Nouvelle-Aquitaine"
+lycees <- read.csv2("fr-en-indicateurs-de-resultat-des-lycees-denseignement-general-et-technologique.csv", dec='.')
+parcoursup <- read.csv2("fr-esr-parcoursup-2021-xls.csv", dec='.')
+```
+
+
+Pour contextualiser cette enquête qualitative, nous allons employer une approche
+quantitative exploitant les données ouvertes du gouvernement, concernant les lycées
+et formations supérieures de Nouvelle-Aquitaine.
+
+## Candidats
+
+La Figure 1 utilise le jeu de données `Indicateurs de valeur ajoutée des lycées d'enseignement général et technologique`
+^[https://www.data.gouv.fr/fr/datasets/indicateurs-de-valeur-ajoutee-des-lycees-denseignement-general-et-technologique/] 
+pour visualiser les lycées de Nouvelle-Aquitaine en fonction du nombre de candidats au baccalauréat,
+et du taux de mention (moyenne générale supérieure à 12), qui est l'indicateur 
+principal de « performance scolaire ».
+A droite nous y trouvons les plus grands lycées et en haut les plus « performants ». 
+
+Les points rouge indiquent la position des établissement des candidats enquêtés. 
+Ces derniers occupent une position centrale en terme de taille, allant de 160 à 320,
+et son représentatif de tous les niveaux de performance, allant de 60% à 90% de taux
+de mention.
+
+
+```{r carte.lycees, fig.cap="Positionnement des lycées de Nouvelle-Aquitaine en fonction de leur taille et taux de mention"}
+lycees %>% 
+  filter(annee == max(annee), libelle_region_2016 == str_to_upper(code.region)) %>%
+  ggplot(aes(x=effectif_presents_total_series,y=taux_mention_brut_toutes_series, 
+             size=effectif_presents_total_series, color=taux_mention_brut_toutes_series)) +
+  geom_point() +
+  geom_point(
+    data = . %>% filter(code_etablissement %in% codes.lycées),
+    color = "red") +
+  xlab("Nombre de bacheliers") +
+  ylab("Taux de mention") +
+  theme_cpesr() +
+  theme(
+    legend.position = "none",
+    panel.grid.major.x = element_line(colour = "#D8D8D8"))
+```
+
+```{r carte.lycees.data, results='asis'}
+lycees %>% 
+  filter(annee == max(annee), libelle_region_2016 == str_to_upper(code.region)) %>%
+  filter(code_etablissement %in% codes.lycées) %>%
+  select(etablissement,effectif_presents_total_series,taux_mention_brut_toutes_series,everything()) %>%
+  spoilerTable()
+```
+
+## Formations
+
+La Figure 2 utilise le jeu de données `Parcoursup 2021 - vœux de poursuite d'études et de réorientation dans l'enseignement supérieur et réponses des établissements`
+^[https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/information/] 
+pour visualiser les formations de Nouvelle-Aquitaine en fonction du nombre de candidats,
+et du taux d'accès (100% correspondant aux filières non sélectives), qui est l'indicateur 
+officiel de sélectivité.
+A droite nous y trouvons les plus grandes formation et en haut les plus difficiles d'accès. 
+
+Les points rouge indiquent la position des formations des CEV enquêtés. 
+Ces dernieres occupent tout le champs des formations, allant de 850 à 8300 candidatures, pour 20 à 500 places, avec des taux d'accès de 97% à 2%.
+
+### Formations incluses ici 
+
+Lorsque `Libellé` est `NA`, je n'ai pas trouvé de formation correspondante.
+
+```{r id.formations.incluse}
+formations %>%
+  kableExtra::kable()
+```
+
+#### Université de Bordeaux
+
+```{r id.formations.bordeaux, results='asis'}
+parcoursup %>% 
+  filter(str_detect(Établissement,"Université de Bordeaux")) %>%
+  select(Filière.de.formation,Filière.de.formation.détaillée.1,Filière.de.formation.détaillée,Code.UAI.de.l.établissement) %>% 
+  unique() %>% 
+  spoilerTable()
+```
+
+#### Commune de Bordeaux
+
+```{r id.formations.combordeaux, results='asis'}
+parcoursup %>% 
+  filter(Commune.de.l.établissement == "Bordeaux") %>%
+  select(Filière.de.formation,Filière.de.formation.détaillée.1,Filière.de.formation.détaillée,Code.UAI.de.l.établissement) %>% 
+  unique() %>% 
+  spoilerTable()
+```
+
+
+#### UPPA
+
+```{r id.formations.uppa, results='asis'}
+parcoursup %>% 
+  filter(str_detect(Établissement,"Université de Pau et des Pays de l'Adour")) %>%
+  select(Filière.de.formation,Filière.de.formation.détaillée.1,Filière.de.formation.détaillée,Code.UAI.de.l.établissement) %>% 
+  unique() %>% 
+  spoilerTable()
+```
+
+### Cartes
+
+
+```{r carte.formations}
+parcoursup %>% 
+  filter(Région.de.l.établissement == code.region) %>%
+  ggplot(aes(x=Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.,
+             y=Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP., 
+             size=Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.,
+             color=Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP.)) +
+  geom_point() +
+  scale_x_log10() +
+  geom_point(
+    data = . %>% filter(Filière.de.formation.détaillée %in% formations$Libellé),
+    color = "red") +
+  xlab("Nombre de candidats admis") +
+  ylab("Taux d'accès (100% = non sélectif)") +
+  theme_cpesr() +
+  theme(legend.position = "none", 
+        panel.grid.major.x = element_line(colour = "#D8D8D8"))
+```
+
+```{r carte.formations.2}
+parcoursup %>% 
+  filter(Région.de.l.établissement == code.region) %>%
+  ggplot(aes(x=Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.,
+             y=Effectif.total.des.candidats.pour.une.formation, 
+             size=Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.,
+             color=Effectif.total.des.candidats.pour.une.formation)) +
+  geom_point() +
+  scale_x_log10() +
+  scale_y_log10() +
+  geom_point(
+    data = . %>% filter(Filière.de.formation.détaillée %in% formations$Libellé),
+    color = "red") +
+  xlab("Nombre de candidats admis") +
+  ylab("Nombre de candidats") +
+  theme_cpesr() +
+  theme(legend.position = "none", 
+        panel.grid.major.x = element_line(colour = "#D8D8D8"))
+```
+
+```{r carte.formations.3}
+parcoursup %>% 
+  filter(Région.de.l.établissement == code.region) %>%
+  ggplot(aes(x=Effectif.total.des.candidats.pour.une.formation,
+             y=Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP., 
+             size=Effectif.total.des.candidats.pour.une.formation,
+             color=Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP.)) +
+  geom_point() +
+  geom_point(
+    data = . %>% filter(Filière.de.formation.détaillée %in% formations$Libellé),
+    color = "red") +
+  xlab("Nombre de candidats") +
+  ylab("Taux d'accès") +
+  theme_cpesr() +
+  theme(legend.position = "none", 
+        panel.grid.major.x = element_line(colour = "#D8D8D8"))
+```
+
+```{r carte.formations.data, results='asis'}
+parcoursup %>% 
+  filter(Région.de.l.établissement == code.region) %>%
+  filter(Filière.de.formation.détaillée %in% formations$Libellé) %>%
+  select(Filière.de.formation.détaillée, Effectif.total.des.candidats.pour.une.formation, 
+         Admis = Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.,
+         Taux.d.accès = Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP., everything()) %>%
+  spoilerTable()
+```
