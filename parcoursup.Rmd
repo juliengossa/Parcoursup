@@ -18,56 +18,22 @@ spoilerTable <- function(df) {
   
   cat("\n\n</details>\n")
 }
+
+source("psdata.R")
 ```
 
 
-```{r load}
-ps18 <- read.csv2("fr-esr-parcoursup-2018.csv",dec='.')
-ps19 <- read.csv2("fr-esr-parcoursup-2019.csv",dec='.')
-ps20 <- read.csv2("fr-esr-parcoursup-2020-xls.csv",dec=',') %>%
-  rename(
-    Libellé.formation = Filière.de.formation.détaillée,
-    Filière.de.formation.détaillée = Filière.de.formation.détaillée.1
-  ) %>%
-  select(-X..d.admis.néo.bacheliers.issus.du.même.établissement..BTS.CPGE.)
-
-ps21 <- read.csv2("fr-esr-parcoursup-2021.csv",dec='.') %>%
-  rename(
-    Libellé.formation = Filière.de.formation.détaillée,
-    Filière.de.formation.détaillée = Filière.de.formation.détaillée.bis
-  ) 
-
-ps <- bind_rows(ps18,ps19,ps20,ps21) %>%
-  mutate(Filière.de.formation.très.agrégée = fct_recode(
-    factor(Filière.de.formation.très.agrégée),
-    DUT_BUT = "DUT",
-    DUT_BUT = "BUT",
-  ))
-```
-
-```{r cn, results='asis'}
-ps18cn <- colnames(ps18)
-ps19cn <- colnames(ps19)
-ps20cn <- colnames(ps20)
-ps21cn <- colnames(ps21) 
-
-
-tibble("col"=colnames(ps18),"ps18"=TRUE) %>%
-  full_join( tibble("col"=colnames(ps19),"ps19"=TRUE) ) %>%
-  full_join( tibble("col"=colnames(ps20),"ps20"=TRUE) ) %>%
-  full_join( tibble("col"=colnames(ps21),"ps21"=TRUE) ) %>%
-  spoilerTable()
-```
+## Licences d'informatique
 
 ```{r info}
 info <- ps %>% 
   filter(str_detect(Filière.de.formation.détaillée,"nformatique") | Filière.de.formation.détaillée == "MP2I") %>%
   group_by(Session,Filière=Filière.de.formation.très.agrégée) %>%
   summarise(
-    Capacité = sum(Capacité.de.l.établissement.par.formation),
-    Candidatures = sum(Effectif.total.des.candidats.pour.une.formation),
-    Propositions = sum(Effectif.total.des.candidats.ayant.reçu.une.proposition.d.admission.de.la.part.de.l.établissement),
-    Admissions = sum(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.)
+    Capacité = sum(Capacité,na.rm=TRUE),
+    Candidatures = sum(Candidatures,na.rm=TRUE),
+    Propositions = sum(Propositions,na.rm=TRUE),
+    Admissions = sum(Admissions,na.rm=TRUE)
   ) %>%
   pivot_longer(Capacité:Admissions, names_to = "Type", values_to = "Nombre") %>%
   mutate(Type = factor(Type, levels=c("Capacité","Candidatures","Propositions","Admissions"))) %>%
@@ -133,7 +99,7 @@ info.all <- bind_rows(
     summarise(
       Filière = "Ensemble",
       Type = "Admissions",
-      Nombre = sum(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.))
+      Nombre = sum(Admissions))
 ) %>%
 mutate(Filière = factor(Filière,c("Licence Informatique","DUT_BUT Informatique","Ensemble"))) %>%
 group_by(Filière) %>%
@@ -161,12 +127,12 @@ ifsi <- bind_rows(
     group_by(Session) %>%
     summarise(
       Filière = "IFSI",
-      Nombre = sum(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.)),
+      Nombre = sum(Admissions)),
   ps %>% 
     group_by(Session) %>%
     summarise(
       Filière = "Ensemble",
-      Nombre = sum(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.))
+      Nombre = sum(Admissions))
   ) %>%
   filter(Session > 2018) %>%
   mutate(Session = factor(Session)) %>%
@@ -203,9 +169,9 @@ ps %>%
   group_by(Session,Filière.de.formation.détaillée) %>%
   summarise(
     Filière = "IFSI",
-    Admissions = sum(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.),
-    Capacité = sum(Capacité.de.l.établissement.par.formation),
-    Candidatures = sum(Effectif.total.des.candidats.pour.une.formation)) %>%
+    Admissions = sum(Admissions),
+    Capacité = sum(Capacité),
+    Candidatures = sum(Candidatures)) %>%
   pivot_longer(c(Admissions,Capacité,Candidatures), names_to="Type", values_to = "Nombre") %>%
   
   filter(Type != "Candidatures") %>%
@@ -217,6 +183,14 @@ ps %>%
     expand_limits(y=c(0,30000)) +
     theme_cpesr_cap() +
     ggtitle("Parcoursup : nombre de candidatures et d'admissions en IFSI")
+```
+
+
+### Places vacantes
+
+```{r pv}
+
+
 ```
 
 
@@ -243,7 +217,7 @@ ps.mentions <- ps %>%
 ps.mentions %>%
   mutate(
     test1 = Admis.Mention_inconnue + Admis.Sans_mention + Admis.AB + Admis.B + Admis.TB + Non_Admis.Mention_inconnue + Non_Admis.Sans_mention + Non_Admis.AB + Non_Admis.B + Non_Admis.TB,
-    test2 = Effectif.total.des.candidats.pour.une.formation,
+    test2 = Candidatures,
     test3 = test1 - test2
   )  
 ```

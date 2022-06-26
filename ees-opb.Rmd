@@ -1,0 +1,320 @@
+---
+title: "Et si Parcoursup était compté"
+authors: Pauline Boyer et Julien Gossa, Université de Strasbourg
+output: 
+  github_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+options(tidyverse.quiet = TRUE)
+library(tidyverse)
+options(dplyr.summarise.inform = FALSE)
+```
+
+```{r wc, warning=FALSE}
+wordcountaddin:::text_stats()
+```
+
+
+
+```{r load, cache=TRUE}
+source("psdata.R")
+```
+
+Projet d'article pour « Orientation post-bac :Parcoursup et l'introduction de la sélection à l'université – Varia (72/juin 2024) ».
+
+Axes : transversal.
+
+## Introduction
+
+Remplaçant APB (Admission Post-Bac) en 2018, Parcoursup est désormais la plateforme
+d'affectation des candidates et candidats à l'entrée dans l'enseignement supérieur
+en France. De prime abord, la différence entre APB et Parcoursup tient surtout 
+à l'organisation globale de la procédure, la façon dont les candidatures sont 
+formulées et les propositions retenues, ainsi que les informations disponibles pour faire
+ces choix. Si l'algorithme qui sous-tend l'affectation, Gale-Shapley, n'a pas changé, 
+la façon dont les différents acteurs appréhendent ce moment est bouleversé.
+Parcoursup a été introduit par la loi ORE (Orientation et Réussite des Etudiants),
+conçue pour faire face au problème des places dans l'enseignement supérieur. 
+Cette loi dispose de deux transformations techniques mais majeures. 
+
+La première est la suppression de la phrase « Tout candidat est libre de s’inscrire 
+dans l'établissement de son choix » du L612-3 du Code de l'éducation. 
+Cette suppression abaisse le poids des candidats dans les décisions d'affectation, 
+puisque l'entrée en Licence n'est plus de droit mais soumise à une forme de sélection. 
+
+La seconde est l'introduction, dans le même article, de la phrase : 
+« Les capacités d'accueil [...] sont arrêtées chaque année par 
+l'autorité académique après dialogue avec chaque établissement. ». L'autorité 
+académique désigne le rectorat, représentant de l’État dans les académies. 
+Cet ajout abaisse le poids des établissements dans les décisions d'affection, 
+puisqu'ils n'obtienne pas le contrôle sur les capacités d'accueil en Licence, 
+mais en plus le perdent pour les formations sélectives (IUT et double Licences, notamment).
+
+Au delà de l'impact sur les familles et équipes pédagogique, Parcoursup est donc 
+aussi un outil d'action publique, permettant à l’État de mieux contrôler les flux
+du « -3/+3 ». Cela nous conduit à nous interroger sur les indicateurs de cette 
+action publique, ceux mis en place pour l'actionner ou la qualifier, comme ceux qui 
+en ont disparu. Ce projet d'article propose donc de s'intéresser à ces indicateurs,
+dans le temps, pour mieux percevoir à la fois l'état actuel et l'orientation que 
+prennent les affectations dans le supérieur.
+
+## Méthodologie
+
+Notre méthodologie est au croisement des sciences des données et des sciences 
+de l'action publique. Elle s'appuie sur deux piliers. D'une part, une veille systématique
+des données ouvertes, tableaux de bord et communiqués sur ces données permet de 
+construire un état de l'art des informations publiques disponibles sur l'affectation
+dans l'enseignement supérieur, ce qu'on pourrait qualifier de meta-informations. 
+D'autre part, l'analyse de ces données, par des traitements et représentations 
+en sources ouvertes, permet de créer de l'information nouvelle pour mieux percevoir
+et suivre l'évolution de notre système.
+
+Les données sont pour l'essentiel en provenance directement de la plateforme 
+de données ouvertes du ministère, donc celles utilisée pour alimenter Parcoursup, 
+ses tableaux de bord, et les notes d'information du ministère.
+Les traitements sont effectués en R et les représentationen ggplot. 
+Ils sont mis en ligne et librement accessibles sur la 
+plateforme GitHub, ainsi que les brouillons exploratoires. Les informations 
+étonnantes sont systématiquement discutées publiquement sur le réseau social Twitter.
+
+  - https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/information/
+  - https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup_2020/information/
+  - https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup-2019/information/
+  - https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup-2018/information/
+
+
+## Principaux résulats
+
+### Mesures de la procédure d'affectation : `Vitesse et débit`
+
+La mesure communément retenue pour mesurer la qualité d'une affectation est le 
+niveau de satisfaction des candidates et candidats. Les sessions APB étaient ainsi
+qualifiées en mesurant le taux de premiers vœux satisfaits. Cette mesure a disparu
+avec Parcoursup, et on lui substitue désormais le taux de candidates et candidats 
+ayant reçu au moins une proposition, et le temps qu'il faut pour la recevoir.
+Le taux de propositions définitivement acceptées est encore disponible dans le 
+bilan, mais a disparu des tableaux de bord quotidiens. 
+
+La figure X gauche montre le tableau de bord Parcoursup en 2018 et 2022. La dernière 
+version ne permet plus de connaitre combien d'affectations ont été définitivement 
+acceptées. La figure X droite montre la vitesse de l'affectation.
+
+[captures TDB et SIES]
+
+Les mesures de la procédures d'affectation témoignent donc d'une transition d'une
+logique de satisfaction des candidats à une logique de gestion des flux, où la 
+qualité de l'affectation s'est éclipsée au profit de sa vitesse et de son débit.
+
+### Mesures de la procédure d'affectation : `Taux de remplissage`
+
+Le nombre de places proposées mais non pourvues ne fait pas partie des mesures 
+officielles, mais est regardé de près notamment par le CESP. Ce dernier préconise 
+son abaissement pour améliorer les performances de la plateforme. Cette mesure est 
+rendue difficile par une mauvaise déclaration des capacités d'accueil officielles 
+des formations, notamment en Licences où elles peuvent être sans rapport avec les
+capacités matérielles réelles surtout jusqu'en 2019. De plus, les admissions sont 
+limitées à celles gérées par Parcoursup, donc partielles : des places pourvues 
+peuvent apparaître comme vacantes.
+
+La Figure X gauche présente le nombre de places non pourvues, calculées comme la différence 
+entre les capacités d'accueil officielles et les admissions dans APB/Parcoursup.
+Malgré des tendances clairement apparentes, on ne peut en déduire ni que les 
+universités auraient remplies 300 000 places vacantes, ni que les BTS seraient 
+en voie de désaffection. Ceci illustre la grande difficulté de construire des 
+indicateurs fiables : le nombre de `places non pourvues` n'est pas le nombre réel 
+de `places vacantes`. 
+
+Les figures X droite montrent la même information sous la forme de taux globaux ou 
+moyens, racontant à chaque fois une histoire différente. Ceci démontre la 
+nécessite de prendre beaucoup de précautions lorsqu'on manipule cette information,
+et peut-être la nécessite de créer un véritable indicateur `places vacantes`.
+
+
+```{r pnp}
+ps %>%
+  group_by(Session, Filière = case_when(
+    Filière.de.formation.très.agrégée == "Licence" ~ "Licence",
+    Filière.de.formation.très.agrégée == "BTS" ~ "BTS",
+    TRUE ~ "Autres"
+    )) %>%
+  summarize(pnp = sum(Capacité-Admissions,na.rm = TRUE)/1000) %>%
+  ggplot(aes(x=Session,y=pnp, group=Filière, color=Filière)) +
+  geom_line() +
+  ylab("Places non pourvues (milliers)") +
+  expand_limits(y=0)
+
+ps %>%
+  group_by(Session, Filière = case_when(
+    Filière.de.formation.très.agrégée == "Licence" ~ "Licence",
+    Filière.de.formation.très.agrégée == "BTS" ~ "BTS",
+    TRUE ~ "Autres"
+    )) %>%
+  summarize(tdr = sum(Admissions,na.rm=TRUE) / sum(Capacité,na.rm = TRUE)) %>%
+  ggplot(aes(x=Session,y=tdr, group=Filière, color=Filière)) +
+  geom_line() +
+  ylab("Taux de remplissage global") +
+  expand_limits(y=c(0,1))
+
+ps %>%
+  group_by(Session, Filière = case_when(
+    Filière.de.formation.très.agrégée == "Licence" ~ "Licence",
+    Filière.de.formation.très.agrégée == "BTS" ~ "BTS",
+    TRUE ~ "Autres"
+    )) %>%
+  summarize(tdr = mean(Admissions / Capacité,na.rm = TRUE)) %>%
+  ggplot(aes(x=Session,y=tdr, group=Filière, color=Filière)) +
+  geom_line() +
+  ylab("Taux de remplissage moyen par filière") +
+  expand_limits(y=c(0,1))
+```
+
+## Mesure du `taux de poursuite d'étude` et l'`éviction`
+
+Comme le montre l'exemple ci-dessus, les données de Parcoursup peuvent être trop 
+partielles pour avoir une vision complète d'un phénomène. 
+Pour percevoir la trajectoire des jeunes entre le Lycée et le supérieur, le SIES 
+a mis à disposition un jeu de données ouvertes de suivi des bacheliers, qui 
+croise plusieurs bases de données. 
+Il permet de mieux percevoir les évolutions des poursuites d'étude, de l'orientation
+et des évictions, par académie, secteurs et filières du bac et du supérieur.
+Ce jeu est cependant aveugle aux autres candidatures, 
+et notamment les étrangers et reprises et d'étude, dont l'admission est pourtant
+un grand enjeu.
+
+La figure X montre à gauche les taux de poursuite d'étude et à droit le nombre 
+absolu de non poursuivants. Là encore, ce sont deux histoires différentes qui 
+sont racontées, allant de l'amélioration des taux de poursuite pour les bacheliers
+professionnels, à une entrée de plus en plus difficile dans le supérieur pour les 
+bac généraux et technologiques. Il convient de nouveau d'être très prudents.
+
+```{r pe}
+pe %>% 
+  group_by(Session, Série) %>%
+  summarise(tpe = sum(Poursuivants, na.rm=TRUE) / sum(Bacheliers, na.rm = TRUE)) %>%
+  ggplot(aes(x=Session,y=tpe,group=Série, color=Série)) +
+  geom_line() +
+  expand_limits(y=c(0,1)) +
+  ylab("Taux de poursuite d'étude")
+
+pe %>% 
+  group_by(Session, Série) %>%
+  summarise(np = sum(Bacheliers, na.rm = TRUE) - sum(Poursuivants, na.rm=TRUE)) %>%
+  mutate(Série=fct_rev(Série)) %>%
+  ggplot(aes(x=Session,y=np,group=Série, fill=Série)) +
+  geom_area() +
+  expand_limits(y=c(0,1)) +
+  ylab("Nombre de non poursuivants")
+```
+
+
+## Mesure de l'orientation : `sélectivité` des admissions post-bac.
+
+L'amélioration de l'orientation était une des grandes promesses de Parcoursup.
+Cependant, nous ne disposons d'aucune métrique permettant de vérifier cette 
+affirmation, tant la notion de « bonne » orientation est vague. 
+Même en la réduisant au taux de réussite sans redoublement, il est impossible de
+séparer l'effet d'une meilleure orientation, d'une meilleure pédagogie, ou d'un 
+abaissement des exigences.
+
+En revanche, on peut s'intéresser aux taux de sélection, pour percevoir l'équilibre 
+entre la liberté de choix des candidats et les classements des candidatures pas 
+les formations. Une fois de plus, cette mesure est délicate : l'organisation de 
+la procédure fait qu'il est difficile de calculer avec certitude le rang du 
+dernier appelé ; et les vœux groupés et admissions communes peuvent augmenter 
+artificiellement le nombre de candidatures à certaines formations.
+Cette difficulté explique que le `taux d'accès` mesure officielle de la sélectivité 
+des formations, ne soit accessible qu'à partir de 2020. Il est donc difficile 
+d'évaluer clairement l'impact de Parcoursup sur cet aspect.
+
+```{r sel}
+ps %>%
+  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
+  filter(Session %in% c(2020,2021)) %>%
+  filter(!is.na(taux.accès)) %>%
+  mutate(tda = cut(taux.accès, c(0,0.1,0.3,0.5,0.7,0.90,1,Inf),right=FALSE)) %>%
+  group_by(Session=as.character(Session),Filière,tda) %>%
+  summarise(nformations = n()) %>%
+  ggplot(aes(x=tda,y=nformations,fill=Session)) +
+  geom_col(position = "dodge") +
+  ylab("Nombre de formations") +
+  xlab("Taux d'accès") +
+  facet_grid(.~Filière)
+
+ps %>%
+  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
+  filter(Session %in% c(2020,2021)) %>%
+  filter(!is.na(taux.accès)) %>%
+  mutate(tda = cut(taux.accès, c(0,0.1,0.3,0.5,0.7,0.90,1,Inf),right=FALSE)) %>%
+  group_by(Session=as.character(Session),Filière,tda) %>%
+  summarise(nadmissions = sum(Admissions,na.rm=TRUE)) %>%
+  ggplot(aes(x=tda,y=nadmissions,fill=Session)) +
+  geom_col(position = "dodge") +
+  ylab("Nombre d'admissions") +
+  xlab("Taux d'accès") +
+  facet_grid(.~Filière)
+```
+
+La figure X montre qu'il existe des « formations sélectives » qui ne sélectionnent pas,
+comme des « formations non sélectives » qui sélectionnent. Ce constat invite à 
+concevoir un indicateur global de sélectivité de l'affectation post-bac pour 
+permettre de suivre l'évolution de notre système. 
+
+## Conclusion
+
+A ce stade et dans leur état, les données ouvertes ne permettent pas de confirmer 
+les discours qui ont accompagné la mise en œuvre de Parcoursup et de la loi ORE :
+on n'observe ni d'amélioration de la satisfaction des étudiants ou des formations, 
+ni des taux de remplissage ; le taux de poursuite d'étude augmente légèrement, 
+mais le nombre d'évictions reste stable ; la mesure de la sélectivité est trop 
+récente pour observer une mutation.
+
+Cela nous conduit à nous interroger sur l'utilisation que l’État a fait de son
+nouveau pouvoir de contrôle sur les admissions post-bac. Nous trouvons une piste
+en observant l'évolution de la distribution des tailles de formation, que montre
+la figure X.
+
+La croissance du nombre de formations hors Licence s'explique en partie par la volonté 
+d'intégrer à Parcoursup toutes les formations post-bac, y compris privées. 
+L'énorme croissance spontanée en 2018 du nombre de petites Licences provient 
+probablement d'une meilleure déclaration des filières existantes, dans lesquelles 
+l'inscription était auparavant faites hors APB. 
+
+```{r odf}
+session.palette <- RColorBrewer::brewer.pal(8,"RdBu")[c(1,3,5:8)]
+ps %>% 
+  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
+  filter(!is.na(taille)) %>%
+  group_by(Session, Filière, taille) %>% 
+  summarise(nb.formations = n()) %>%
+  mutate(Session = as.factor(Session)) %>%
+  ggplot(aes(x=taille,y=nb.formations,fill=Session)) +
+  geom_col(position="dodge") +
+  scale_fill_manual(values=session.palette) +
+  ylab("Nombre de formations") +
+  facet_wrap(.~Filière, scales = "free_y")
+
+
+ps %>% 
+  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
+  filter(!is.na(taille)) %>%
+  group_by(Session, Filière, taille) %>% 
+  summarise(nb.formations = sum(Admissions)) %>%
+  mutate(Session = as.factor(Session)) %>%
+  ggplot(aes(x=taille,y=nb.formations,fill=Session)) +
+  geom_col(position="dodge") +
+  scale_fill_manual(values=session.palette) +
+  ylab("Nombre d'admissions") +
+  facet_wrap(.~Filière)
+
+```
+Cependant, la diminution des 
+admissions dans les formations de très grande taille et la croissance des 
+admissions dans les effectifs de petite taille démontre une « spécialisation »
+croissante de l'offre de formation, en adéquation avec le discours de 
+« personnalisation des parcours ». Cette spécialisation est probablement une 
+mutation de fond, qui doit conduire à interroger la lisibilité de l'offre de 
+formation, la complexité des décisions d'affectation, et continuité de diplômes
+nationaux équivalents partout sur le territoire. 
