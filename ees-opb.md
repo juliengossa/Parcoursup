@@ -3,10 +3,10 @@ Et si Parcoursup était compté
 
 | Method          | koRpus      | stringi       |
 |:----------------|:------------|:--------------|
-| Word count      | 1635        | 1661          |
-| Character count | 10336       | 10670         |
-| Sentence count  | 81          | Not available |
-| Reading time    | 8.2 minutes | 8.3 minutes   |
+| Word count      | 1763        | 1813          |
+| Character count | 11200       | 11955         |
+| Sentence count  | 96          | Not available |
+| Reading time    | 8.8 minutes | 9.1 minutes   |
 
 Projet d’article pour « Orientation post-bac :Parcoursup et
 l’introduction de la sélection à l’université – Varia (72/juin 2024) ».
@@ -22,35 +22,49 @@ APB et Parcoursup tient surtout à l’organisation globale de la
 procédure, la façon dont les candidatures sont formulées et les
 propositions retenues, ainsi que les informations disponibles pour faire
 ces choix. Si l’algorithme qui sous-tend l’affectation, Gale-Shapley,
-n’a pas changé, la façon dont les différents acteurs appréhendent ce
-moment est bouleversé. Parcoursup a été introduit par la loi ORE
-(Orientation et Réussite des Etudiants), conçue pour faire face au
-problème des places dans l’enseignement supérieur. Cette loi dispose de
-deux transformations techniques mais majeures.
+n’a pas changé (Courant and Gossa 2019), la façon dont les différents
+acteurs appréhendent ce moment est bouleversé (Bodin, Mengneau, and
+Orange 2020 ; Bodin and Orange 2019 ; Daverne-Bailly and Bobineau 2020 ;
+Mizzi 2022 ; Frouillou, Pin, and Zanten 2019 ; Frouillou, Pin, and
+Zanten 2020 ; Chauvel and Hugrée 2019 ), encore plus après la réforme du
+Lycée général (Caillot and Sidokpohou 2022). Plus globalement,
+Parcoursup est aussi le synonyme de transformations dans la répartition
+des néo-bacheliers dans l’enseignement supérieur (Nagui Bechichi, Julien
+Grenet, and Georgia Thebault 2021).
 
-La première est la suppression de la phrase « Tout candidat est libre de
-s’inscrire dans l’établissement de son choix » du L612-3 du Code de
+Parcoursup a été introduit par la loi ORE (Orientation et Réussite des
+Etudiants), conçue pour faire face au problème des places dans
+l’enseignement supérieur mais qui ouvre plus de questions qu’elle n’en
+ferme (Beaud and Vatin 2018). Cette loi dispose de deux transformations
+techniques mais majeures.
+
+La première est la suppression de la phrase « *Tout candidat est libre
+de s’inscrire dans l’établissement de son choix* » du L612-3 du Code de
 l’éducation. Cette suppression abaisse le poids des candidats dans les
 décisions d’affectation, puisque l’entrée en Licence n’est plus de droit
 mais soumise à une forme de sélection.
 
 La seconde est l’introduction, dans le même article, de la phrase : «
-Les capacités d’accueil \[…\] sont arrêtées chaque année par l’autorité
-académique après dialogue avec chaque établissement. ». L’autorité
+*Les capacités d’accueil \[…\] sont arrêtées chaque année par l’autorité
+académique après dialogue avec chaque établissement.* ». L’autorité
 académique désigne le rectorat, représentant de l’État dans les
 académies. Cet ajout abaisse le poids des établissements dans les
 décisions d’affection, puisqu’ils n’obtienne pas le contrôle sur les
 capacités d’accueil en Licence, mais en plus le perdent pour les
 formations sélectives (IUT et double Licences, notamment).
 
-Au delà de l’impact sur les familles et équipes pédagogique, Parcoursup
-est donc aussi un outil d’action publique, permettant à l’État de mieux
-contrôler les flux du « -3/+3 ». Cela nous conduit à nous interroger sur
-les indicateurs de cette action publique, ceux mis en place pour
-l’actionner ou la qualifier, comme ceux qui en ont disparu. Ce projet
-d’article propose donc de s’intéresser à ces indicateurs, dans le temps,
-pour mieux percevoir à la fois l’état actuel et l’orientation que
-prennent les affectations dans le supérieur.
+Au delà de l’impact sur les familles et équipes pédagogique, et comme en
+témoigne le nombre de rapports publics à son sujet (Cour des comptes
+2017 ; Cour des Comptes 2020 ; Noëlle Lenoir, présidente et al. 2019 ;
+Isabelle Falque-Pierrotin et al. 2020 ; Isabelle Falque-Pierrotin et al.
+2021 ; Isabelle Falque-Pierrotin, présidente et al. 2022 ; JUANICO and
+SARLES 2020 ; CSORE 2019 ), Parcoursup est donc aussi un outil d’action
+publique, permettant à l’État de mieux contrôler les flux du « -3/+3 ».
+Cela nous conduit à nous interroger sur les indicateurs de cette action
+publique, ceux mis en place pour l’actionner ou la qualifier, comme ceux
+qui en ont disparu. Ce projet d’article propose donc de s’intéresser à
+ces indicateurs, dans le temps, pour mieux percevoir à la fois l’état
+actuel et l’orientation que prennent les affectations dans le supérieur.
 
 ## Méthodologie
 
@@ -65,18 +79,14 @@ en sources ouvertes, permet de créer de l’information nouvelle pour
 mieux percevoir et suivre l’évolution de notre système.
 
 Les données sont pour l’essentiel en provenance directement de la
-plateforme de données ouvertes du ministère, donc celles utilisée pour
-alimenter Parcoursup, ses tableaux de bord, et les notes d’information
-du ministère. Les traitements sont effectués en R et les
-représentationen ggplot. Ils sont mis en ligne et librement accessibles
-sur la plateforme GitHub, ainsi que les brouillons exploratoires. Les
-informations étonnantes sont systématiquement discutées publiquement sur
-le réseau social Twitter.
-
--   <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/information/>
--   <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup_2020/information/>
--   <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup-2019/information/>
--   <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup-2018/information/>
+plateforme de données ouvertes du ministère [^1] [^2] [^3] [^4] [^5]
+[^6], donc celles utilisée pour alimenter Parcoursup, ses tableaux de
+bord, et les notes d’information du ministère. Les traitements sont
+effectués en R (Xie, Allaire, and Grolemund 2019) et les représentations
+en ggplot (Wickham 2009 ; Wilke 2019). Ils sont mis en ligne et
+librement accessibles sur la plateforme GitHub[^7], ainsi que les
+brouillons exploratoires [^8]. Les informations étonnantes sont
+systématiquement discutées publiquement sur le réseau social Twitter.
 
 ## Principaux résulats
 
@@ -91,10 +101,11 @@ proposition, et le temps qu’il faut pour la recevoir. Le taux de
 propositions définitivement acceptées est encore disponible dans le
 bilan, mais a disparu des tableaux de bord quotidiens.
 
-La figure X gauche montre le tableau de bord Parcoursup en 2018 et 2022.
-La dernière version ne permet plus de connaitre combien d’affectations
-ont été définitivement acceptées. La figure X droite montre la vitesse
-de l’affectation.
+La figure X gauche montre le tableau de bord Parcoursup en 2018 et 2022,
+et permet de s’interroger sur le but poursuivi par ces modifications
+(Julien Gossa 2020). La dernière version ne permet plus de connaitre
+combien d’affectations ont été définitivement acceptées. La figure X
+droite montre la vitesse de l’affectation.
 
 \[captures TDB et SIES\]
 
@@ -213,3 +224,227 @@ parcours ». Cette spécialisation est probablement une mutation de fond,
 qui doit conduire à interroger la lisibilité de l’offre de formation, la
 complexité des décisions d’affectation, et continuité de diplômes
 nationaux équivalents partout sur le territoire.
+
+<div id="refs" class="references csl-bib-body hanging-indent">
+
+<div id="ref-beaud__2018" class="csl-entry">
+
+Beaud, Olivier, and François Vatin. 2018. “« Orientation Et Réussite Des
+Étudiants ». Une Nouvelle Loi Pour Les Universités (I).” *Commentaire*
+Numéro 163 (3): 687–98. <https://doi.org/10.3917/comm.163.0687>.
+
+</div>
+
+<div id="ref-bodin_adhesion_2020" class="csl-entry">
+
+Bodin, Romuald, Juliette Mengneau, and Sophie Orange. 2020. “Adhésion
+Enchantée Et Aléas Universitaires : Les Effets Ambivalents de La
+Sélection à l’Université.” *L’Année Sociologique* 70 (2): 443–67.
+<https://doi.org/10.3917/anso.202.0443>.
+
+</div>
+
+<div id="ref-bodin_gestion_2019" class="csl-entry">
+
+Bodin, Romuald, and Sophie Orange. 2019. “La Gestion Des Risques
+Scolaires. « Avec Parcoursup, Je Ne Serais Peut-Être Pas Là ».”
+*Sociologie* Vol. 10 (2): 217–24.
+<https://www.cairn.info/revue-sociologie-2019-2-page-217.htm>.
+
+</div>
+
+<div id="ref-caillot_analyse_2022" class="csl-entry">
+
+Caillot, Mélanie, and Olivier Sidokpohou. 2022. “Analyse Des Vœux Et
+Affectations Dans l’enseignement Supérieur Des Bacheliers 2021 Après La
+Réforme Du Lycée Général Et Technologique.” IGESR.
+<https://www.education.gouv.fr/analyse-des-voeux-et-affectations-dans-l-enseignement-superieur-des-bacheliers-2021-apres-la-reforme-327062>.
+
+</div>
+
+<div id="ref-chauvel_enseignement_2019" class="csl-entry">
+
+Chauvel, Séverine, and Cédric Hugrée. 2019. “Enseignement Supérieur :
+L’art Et Les Manières de Sélectionner. Introduction.” *Sociologie*, no.
+N° 2, vol. 10 (July). <http://journals.openedition.org/sociologie/5451>.
+
+</div>
+
+<div id="ref-cour_des_comptes_admission_2017" class="csl-entry">
+
+Cour des comptes. 2017. “Admission Post-Bac Et Accès à l’enseignement
+Supérieur - Un Dispositif Contesté à Réformer.”
+<https://www.ccomptes.fr/sites/default/files/2017-10/20171019-rapport-admission-post-bac_0.pdf>.
+
+</div>
+
+<div id="ref-cour_des_comptes_premier_2020" class="csl-entry">
+
+Cour des Comptes. 2020. “Un Premier Bilan de l’accès à l’enseignement
+Supérieur Dans Le Cadre de La Loi Orientation Et Réussite Des
+Étudiants.” Cour des comptes.
+
+</div>
+
+<div id="ref-courant_automatisation_2019" class="csl-entry">
+
+Courant, Judicaël, and Julien Gossa. 2019. “De l’automatisation de
+l’affectation Dans l’enseignement Supérieur.” In.
+<https://hal.archives-ouvertes.fr/hal-02967579>.
+
+</div>
+
+<div id="ref-csore_rapport_2019" class="csl-entry">
+
+CSORE. 2019. “Rapport Du Comité de Suivi de La Loi Orientation Et
+Réussite Des Étudiants.” MESRI.
+<http://cache.media.enseignementsup-recherche.gouv.fr/file/Actus/87/7/RAPPORT-_CSORE_1187877.pdf>.
+
+</div>
+
+<div id="ref-daverne-bailly_orienter_2020" class="csl-entry">
+
+Daverne-Bailly, Carole, and Claudie Bobineau. 2020. “Orienter Et
+s’orienter Vers l’enseignement Supérieur Dans Un Contexte de Changement
+Des Politiques Éducatives : Incertitudes, Choix, Inégalités.” *Éducation
+Et Socialisation. Les Cahiers Du CERFEE*, no. 58 (December).
+<https://doi.org/10.4000/edso.13048>.
+
+</div>
+
+<div id="ref-frouillou_roinstruments_2019" class="csl-entry">
+
+Frouillou, Leïla, Clément Pin, and Agnès van Zanten. 2019. “Le Rôle Des
+Instruments Dans La Sélection Des Bacheliers Dans l’enseignement
+Supérieur. La Nouvelle Gouvernance Des Affectations Par Les
+Algorithmes.” *Sociologie* Vol. 10 (2): 209–15.
+<https://www.cairn.info/revue-sociologie-2019-2-page-209.htm>.
+
+</div>
+
+<div id="ref-frouillou_les_2020" class="csl-entry">
+
+Frouillou, Leïla, Clément Pin, and Agnès van Zanten. 2020. “Les
+Plateformes APB Et Parcoursup Au Service de l’égalité
+Des Chances ?L’évolution Des Procédures Et Des Normes d’accès
+à l’enseignement Supérieur En France.” *L’Année Sociologique* 70 (2):
+337–63. <https://doi.org/10.3917/anso.202.0337>.
+
+</div>
+
+<div id="ref-isabelle_falque-pierrotin_presidente_4e_2022"
+class="csl-entry">
+
+Isabelle Falque-Pierrotin, présidente, Jean-Richard Cytermann, Max
+Dauchet, Jean-Marie Filloque, Catherine Moisan, and Isabelle Roussel.
+2022. “4e Rapport Annuel Au Parlement.” Comité éthique et scientifique
+de Parcoursup.
+<https://www.enseignementsup-recherche.gouv.fr/sites/default/files/2022-02/rapport-cesp-2022-16793.pdf>.
+
+</div>
+
+<div id="ref-isabelle_falque-pierrotin_2e_2020" class="csl-entry">
+
+Isabelle Falque-Pierrotin, Gérard Berry, Jean-Richard Cytermann, Max
+Dauchet, Jean-Marie Filloque, Catherine Moisan, and Isabelle Roussel.
+2020. “2e Rapport Annuel Au Parlement.” Comité éthique et scientifique
+de Parcoursup.
+<https://cache.media.enseignementsup-recherche.gouv.fr/file/2020/28/9/Rapport_du_CESP_2019_(janvier_2020)_1227289.pdf>.
+
+</div>
+
+<div id="ref-isabelle_falque-pierrotin_3e_2021" class="csl-entry">
+
+Isabelle Falque-Pierrotin, Gérard Berry, Jean-Richard Cytermann, Max
+Dauchet, Jean-Marie Filloque, Catherine Moisan, Isabelle Roussel, and
+Guillaume Tronchet. 2021. “3e Rapport Annuel Au Parlement Du Comité
+Éthique Et Scientifique de Parcoursup: Parcoursup à La Croisée Des
+Chemins:” Comité éthique et scientifique de Parcoursup.
+<https://cache.media.enseignementsup-recherche.gouv.fr/file/Parcoursup/21/0/Psup_comite_ethique_2021_1380210.pdf>.
+
+</div>
+
+<div id="ref-juanico_rapport_2020" class="csl-entry">
+
+JUANICO, RÉGIS, and NATHALIE SARLES. 2020. “Rapport d’information Sur
+l’évaluation de l’accès à l’enseignement Supérieur.” Assemblée
+nationale.
+<http://www.assemblee-nationale.fr/dyn/15/rapports/cec/l15b3232_rapport-information.pdf>.
+
+</div>
+
+<div id="ref-julien_gossa_parcoursup_2020" class="csl-entry">
+
+Julien Gossa. 2020. “Parcoursup : Le Bidonnage Continue.” *Docs En Stock
+: Dans Les Coulisses de La Démocratie Universitaire*.
+<http://blog.educpros.fr/julien-gossa/2020/07/17/parcoursup-le-bidonnage-continue/>.
+
+</div>
+
+<div id="ref-mizzi_gestion_2022" class="csl-entry">
+
+Mizzi, Alban. 2022. “La Gestion Émotionnelle de Parcoursup. Une Épreuve
+Entre Inégalités de Ressources Et d’incertitudes.” *L’orientation
+Scolaire Et Professionnelle*, no. 51/1 (March): 137.
+<https://doi.org/10.4000/osp.15873>.
+
+</div>
+
+<div id="ref-nagui_bechichi_dadmission_2021" class="csl-entry">
+
+Nagui Bechichi, Julien Grenet, and Georgia Thebault. 2021. “D’Admission
+Post‑bac à Parcoursup : Quels Effets Sur La Répartition Des
+Néo‑bacheliers Dans Les Formations d’enseignement Supérieur ?” INSEE.
+<https://www.insee.fr/fr/statistiques/5432519?sommaire=5435421>.
+
+</div>
+
+<div id="ref-noelle_lenoir_presidente_1er_2019" class="csl-entry">
+
+Noëlle Lenoir, présidente, Gérard Berry, vice-président, Max Dauchet,
+Julien Grenet, Laure Lucchesi, and Catherine Moisan. 2019. “1er Rapport
+Annuel Au Parlement.” Comité éthique et scientifique de Parcoursup.
+<https://services.dgesip.fr/fichiers/Rapport_du_CESP_1061363.pdf>.
+
+</div>
+
+<div id="ref-wickham_ggplot2_2009" class="csl-entry">
+
+Wickham, Hadley. 2009. *Ggplot2: Elegant Graphics for Data Analysis*.
+Use R! New York: Springer.
+
+</div>
+
+<div id="ref-wilke_fundamentals_2019" class="csl-entry">
+
+Wilke, Claus. 2019. *Fundamentals of Data Visualization: A Primer on
+Making Informative and Compelling Figures*. First edition. Beijing
+Boston Farnham Sebastopol Tokyo: O’Reilly.
+
+</div>
+
+<div id="ref-xie_r_2019" class="csl-entry">
+
+Xie, Yihui, Joseph J. Allaire, and Garrett Grolemund. 2019. *R Markdown:
+The Definitive Guide*. Chapman & Hall/CRC, the R Series. Boca Raton
+London New York: CRC Press, Taylor & Francis Group.
+
+</div>
+
+</div>
+
+[^1]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/>
+
+[^2]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup_2020/>
+
+[^3]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup-2019/>
+
+[^4]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup-2018/>
+
+[^5]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-apb_voeux-et-admissions/>
+
+[^6]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-taux-poursuite-enseignement-superieur-par-academie/>
+
+[^7]: <https://github.com/juliengossa/parcoursup/>
+
+[^8]: <https://github.com/cpesr/RFC/>
