@@ -3,8 +3,8 @@ title: "Et si Parcoursup était compté"
 authors: Pauline Boyer et Julien Gossa, Université de Strasbourg
 output: 
   
-  github_document: default
   pdf_document: default
+  github_document: default
 bibliography: 20220630-Parcoursup.bib
 ---
 
@@ -12,7 +12,10 @@ bibliography: 20220630-Parcoursup.bib
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 options(tidyverse.quiet = TRUE)
 library(tidyverse)
+library(cowplot)
 options(dplyr.summarise.inform = FALSE)
+
+theme_set(theme_minimal())
 ```
 
 ```{r wc, warning=FALSE}
@@ -97,9 +100,20 @@ Ils sont mis en ligne et librement accessibles sur la
 plateforme GitHub^[https://github.com/juliengossa/parcoursup/], ainsi que les brouillons exploratoires ^[https://github.com/cpesr/RFC/]. Les informations 
 étonnantes sont systématiquement discutées publiquement sur le réseau social Twitter.
 
+\newpage
 ## Principaux résulats
 
 ### Mesures de la procédure d'affectation : `Vitesse et débit`
+
+
+```{r aff, fig.cap="Tableaux de bord Parcoursup et vitesse de l'affectation"}
+plot_grid(ncol=2,
+  plot_grid(ncol=1,
+    ggdraw() + draw_image("figs/ps_tdb_2018.png"),
+    ggdraw() + draw_image("figs/ps_tdb_2022.png")),
+ggdraw() + draw_image("figs/ps_sies.png")
+)
+```
 
 La mesure communément retenue pour mesurer la qualité d'une affectation est le 
 niveau de satisfaction des candidates et candidats. Les sessions APB étaient ainsi
@@ -109,19 +123,75 @@ ayant reçu au moins une proposition, et le temps qu'il faut pour la recevoir.
 Le taux de propositions définitivement acceptées est encore disponible dans le 
 bilan, mais a disparu des tableaux de bord quotidiens. 
 
-La figure X gauche montre le tableau de bord Parcoursup en 2018 et 2022, et 
+La figure 1 gauche montre le tableau de bord Parcoursup en 2018^[https://cache.media.enseignementsup-recherche.gouv.fr/file/mai_2018/61/9/Indicateurs23mai_952619.pdf] 
+et 2022^[https://www.parcoursup.fr/tdb-indicateurs/Tableau_de_bord_Admission_2022-06-08.pdf], et 
 permet de s'interroger sur le but poursuivi par ces modifications [@julien_gossa_parcoursup_2020].
 La dernière 
 version ne permet plus de connaitre combien d'affectations ont été définitivement 
-acceptées. La figure X droite montre la vitesse de l'affectation.
+acceptées. La figure 1 droite montre la vitesse de l'affectation ^[https://www.enseignementsup-recherche.gouv.fr/sites/default/files/2021-10/nf-sies-2021-22-14419.pdf].
 
-[captures TDB et SIES]
 
 Les mesures de la procédures d'affectation témoignent donc d'une transition d'une
 logique de satisfaction des candidats à une logique de gestion des flux, où la 
 qualité de l'affectation s'est éclipsée au profit de sa vitesse et de son débit.
 
+
+\newpage
 ### Mesures de la procédure d'affectation : `Taux de remplissage`
+
+```{r pnp, fig.cap="Taux de remplissage des formations post-bac"}
+pnp1 <- ps %>%
+  group_by(Session, Filière = case_when(
+    Filière.de.formation.très.agrégée == "Licence" ~ "Licence",
+    Filière.de.formation.très.agrégée == "BTS" ~ "BTS",
+    TRUE ~ "Autres"
+    )) %>%
+  summarize(pnp = sum(Capacité-Admissions,na.rm = TRUE)/1000) %>%
+  ggplot(aes(x=Session,y=pnp, group=Filière, color=Filière)) +
+  geom_line() +
+  ylab("Places non pourvues (milliers)") +
+  expand_limits(y=0) +
+  ggtitle("Places non pourvues")
+
+pnp2 <- ps %>%
+  group_by(Session, Filière = case_when(
+    Filière.de.formation.très.agrégée == "Licence" ~ "Licence",
+    Filière.de.formation.très.agrégée == "BTS" ~ "BTS",
+    TRUE ~ "Autres"
+    )) %>%
+  summarize(tdr = sum(Admissions,na.rm=TRUE) / sum(Capacité,na.rm = TRUE)) %>%
+  ggplot(aes(x=Session,y=tdr, group=Filière, color=Filière)) +
+  geom_line() +
+  ylab("Taux de remplissage") +
+  expand_limits(y=c(0,1)) +
+  ggtitle("Taux de remplissage global")
+
+pnp3 <- ps %>%
+  group_by(Session, Filière = case_when(
+    Filière.de.formation.très.agrégée == "Licence" ~ "Licence",
+    Filière.de.formation.très.agrégée == "BTS" ~ "BTS",
+    TRUE ~ "Autres"
+    )) %>%
+  summarize(tdr = mean(Admissions / Capacité,na.rm = TRUE)) %>%
+  ggplot(aes(x=Session,y=tdr, group=Filière, color=Filière)) +
+  geom_line() +
+  ylab("Taux de remplissage") +
+  expand_limits(y=c(0,1)) +
+  ggtitle("Taux de rempl. moyen par filière")
+  
+
+legend <- get_legend(
+  pnp1 + theme(legend.position = "bottom", legend.box.margin = margin(0, 0, 0, 12))
+)
+
+plot_grid(ncol=1, rel_heights = c(1,0.1),
+          plot_grid(ncol = 2, 
+                    pnp1 + theme(legend.position = "none"), 
+                    plot_grid(ncol=1, 
+                              pnp2 + theme(legend.position = "none"),
+                              pnp3 + theme(legend.position = "none"))),
+          legend)
+```
 
 Le nombre de places proposées mais non pourvues ne fait pas partie des mesures 
 officielles, mais est regardé de près notamment par le CESP. Ce dernier préconise 
@@ -132,7 +202,7 @@ capacités matérielles réelles surtout jusqu'en 2019. De plus, les admissions 
 limitées à celles gérées par Parcoursup, donc partielles : des places pourvues 
 peuvent apparaître comme vacantes.
 
-La Figure X gauche présente le nombre de places non pourvues, calculées comme la différence 
+La Figure 2 gauche présente le nombre de places non pourvues, calculées comme la différence 
 entre les capacités d'accueil officielles et les admissions dans APB/Parcoursup.
 Malgré des tendances clairement apparentes, on ne peut en déduire ni que les 
 universités auraient remplies 300 000 places vacantes, ni que les BTS seraient 
@@ -140,51 +210,48 @@ en voie de désaffection. Ceci illustre la grande difficulté de construire des
 indicateurs fiables : le nombre de `places non pourvues` n'est pas le nombre réel 
 de `places vacantes`. 
 
-Les figures X droite montrent la même information sous la forme de taux globaux ou 
+Les figures 2 droite montrent la même information sous la forme de taux globaux ou 
 moyens, racontant à chaque fois une histoire différente. Ceci démontre la 
 nécessite de prendre beaucoup de précautions lorsqu'on manipule cette information,
 et peut-être la nécessite de créer un véritable indicateur `places vacantes`.
 
 
-```{r pnp}
-ps %>%
-  group_by(Session, Filière = case_when(
-    Filière.de.formation.très.agrégée == "Licence" ~ "Licence",
-    Filière.de.formation.très.agrégée == "BTS" ~ "BTS",
-    TRUE ~ "Autres"
-    )) %>%
-  summarize(pnp = sum(Capacité-Admissions,na.rm = TRUE)/1000) %>%
-  ggplot(aes(x=Session,y=pnp, group=Filière, color=Filière)) +
-  geom_line() +
-  ylab("Places non pourvues (milliers)") +
-  expand_limits(y=0)
 
-ps %>%
-  group_by(Session, Filière = case_when(
-    Filière.de.formation.très.agrégée == "Licence" ~ "Licence",
-    Filière.de.formation.très.agrégée == "BTS" ~ "BTS",
-    TRUE ~ "Autres"
-    )) %>%
-  summarize(tdr = sum(Admissions,na.rm=TRUE) / sum(Capacité,na.rm = TRUE)) %>%
-  ggplot(aes(x=Session,y=tdr, group=Filière, color=Filière)) +
-  geom_line() +
-  ylab("Taux de remplissage global") +
-  expand_limits(y=c(0,1))
-
-ps %>%
-  group_by(Session, Filière = case_when(
-    Filière.de.formation.très.agrégée == "Licence" ~ "Licence",
-    Filière.de.formation.très.agrégée == "BTS" ~ "BTS",
-    TRUE ~ "Autres"
-    )) %>%
-  summarize(tdr = mean(Admissions / Capacité,na.rm = TRUE)) %>%
-  ggplot(aes(x=Session,y=tdr, group=Filière, color=Filière)) +
-  geom_line() +
-  ylab("Taux de remplissage moyen par filière") +
-  expand_limits(y=c(0,1))
-```
-
+\newpage
 ## Mesure du `taux de poursuite d'étude` et l'`éviction`
+
+```{r pe, fig.cap="Taux de poursuite et nombre de non-poursuites d'étude des néo-bacheliers"}
+pe1 <- pe %>% 
+  group_by(Session, Série) %>%
+  summarise(tpe = sum(Poursuivants, na.rm=TRUE) / sum(Bacheliers, na.rm = TRUE)) %>%
+  ggplot(aes(x=Session,y=tpe,group=Série, color=Série)) +
+  geom_line() +
+  expand_limits(y=c(0,1)) +
+  scale_x_discrete(breaks=seq(2010,2020,by=2)) +
+  ylab("Taux de poursuite d'étude") +
+  ggtitle("Poursuites d'étude")
+
+pe2 <- pe %>% 
+  group_by(Session, Série) %>%
+  summarise(np = sum(Bacheliers, na.rm = TRUE) - sum(Poursuivants, na.rm=TRUE)) %>%
+  mutate(Série=fct_rev(Série)) %>%
+  ggplot(aes(x=Session,y=np,group=Série, fill=Série, color=Série)) +
+  geom_area(alpha=0.6) +
+  expand_limits(y=c(0,1)) +
+  scale_x_discrete(breaks=seq(2010,2020,by=2)) +
+  ylab("Nombre de non poursuivants") +
+  ggtitle("Non-poursuites d'étude")
+
+legend <- get_legend(
+  pe2 + theme(legend.position = "bottom", legend.box.margin = margin(0, 0, 0, 12))
+)
+
+plot_grid(ncol=1, rel_heights = c(1,0.1),
+          plot_grid(ncol = 2, 
+                    pe1 + theme(legend.position = "none"), 
+                    pe2 + theme(legend.position = "none")),
+          legend)
+```
 
 Comme le montre l'exemple ci-dessus, les données de Parcoursup peuvent être trop 
 partielles pour avoir une vision complète d'un phénomène. 
@@ -197,33 +264,60 @@ Ce jeu est cependant aveugle aux autres candidatures,
 et notamment les étrangers et reprises et d'étude, dont l'admission est pourtant
 un grand enjeu.
 
-La figure X montre à gauche les taux de poursuite d'étude et à droit le nombre 
+La figure 3 montre à gauche les taux de poursuite d'étude et à droit le nombre 
 absolu de non poursuivants. Là encore, ce sont deux histoires différentes qui 
 sont racontées, allant de l'amélioration des taux de poursuite pour les bacheliers
 professionnels, à une entrée de plus en plus difficile dans le supérieur pour les 
 bac généraux et technologiques. Il convient de nouveau d'être très prudents.
 
-```{r pe}
-pe %>% 
-  group_by(Session, Série) %>%
-  summarise(tpe = sum(Poursuivants, na.rm=TRUE) / sum(Bacheliers, na.rm = TRUE)) %>%
-  ggplot(aes(x=Session,y=tpe,group=Série, color=Série)) +
-  geom_line() +
-  expand_limits(y=c(0,1)) +
-  ylab("Taux de poursuite d'étude")
 
-pe %>% 
-  group_by(Session, Série) %>%
-  summarise(np = sum(Bacheliers, na.rm = TRUE) - sum(Poursuivants, na.rm=TRUE)) %>%
-  mutate(Série=fct_rev(Série)) %>%
-  ggplot(aes(x=Session,y=np,group=Série, fill=Série)) +
-  geom_area() +
-  expand_limits(y=c(0,1)) +
-  ylab("Nombre de non poursuivants")
+\newpage
+## Mesure de l'orientation : `sélectivité` des admissions post-bac.
+
+
+
+```{r sel, fig.cap="Sélectivité des formations de Parcoursup"}
+sel1 <- ps %>%
+  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
+  filter(Session %in% c(2020,2021)) %>%
+  filter(!is.na(taux.accès)) %>%
+  mutate(tda = cut(taux.accès, c(0,0.1,0.3,0.5,0.7,0.90,1,Inf),right=FALSE)) %>%
+  group_by(Session=as.character(Session),Filière,tda) %>%
+  summarise(nformations = n()) %>%
+  ggplot(aes(x=tda,y=nformations,fill=Session)) +
+  geom_col(position = "dodge") +
+  ylab("Nombre de formations") +
+  xlab("Taux d'accès") +
+  facet_grid(.~Filière) +
+  scale_x_discrete(labels=c("<10%","<30%","<50%","<70%","<90%","<100%","100%")) +
+  ggtitle("Nombre de formations par taux d'accès")
+
+sel2 <- ps %>%
+  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
+  filter(Session %in% c(2020,2021)) %>%
+  filter(!is.na(taux.accès)) %>%
+  mutate(tda = cut(taux.accès, c(0,0.1,0.3,0.5,0.7,0.90,1,Inf),right=FALSE)) %>%
+  group_by(Session=as.character(Session),Filière,tda) %>%
+  summarise(nadmissions = sum(Admissions,na.rm=TRUE)) %>%
+  ggplot(aes(x=tda,y=nadmissions,fill=Session)) +
+  geom_col(position = "dodge") +
+  ylab("Nombre d'admissions") +
+  xlab("Taux d'accès") +
+  facet_grid(.~Filière) +
+  scale_x_discrete(labels=c("<10%","<30%","<50%","<70%","<90%","<100%","100%")) +
+  ggtitle("Nombre d'admissions par taux d'accès")
+
+legend <- get_legend(
+  sel1 + theme(legend.position = "bottom", legend.box.margin = margin(0, 0, 0, 12))
+)
+
+plot_grid(ncol=1, rel_heights = c(1,0.1),
+          plot_grid(ncol = 1, 
+                    sel1 + theme(legend.position = "none"), 
+                    sel2 + theme(legend.position = "none")),
+          legend)
 ```
 
-
-## Mesure de l'orientation : `sélectivité` des admissions post-bac.
 
 L'amélioration de l'orientation était une des grandes promesses de Parcoursup.
 Cependant, nous ne disposons d'aucune métrique permettant de vérifier cette 
@@ -242,40 +336,61 @@ Cette difficulté explique que le `taux d'accès` mesure officielle de la sélec
 des formations, ne soit accessible qu'à partir de 2020. Il est donc difficile 
 d'évaluer clairement l'impact de Parcoursup sur cet aspect.
 
-```{r sel}
-ps %>%
-  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
-  filter(Session %in% c(2020,2021)) %>%
-  filter(!is.na(taux.accès)) %>%
-  mutate(tda = cut(taux.accès, c(0,0.1,0.3,0.5,0.7,0.90,1,Inf),right=FALSE)) %>%
-  group_by(Session=as.character(Session),Filière,tda) %>%
-  summarise(nformations = n()) %>%
-  ggplot(aes(x=tda,y=nformations,fill=Session)) +
-  geom_col(position = "dodge") +
-  ylab("Nombre de formations") +
-  xlab("Taux d'accès") +
-  facet_grid(.~Filière)
 
-ps %>%
-  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
-  filter(Session %in% c(2020,2021)) %>%
-  filter(!is.na(taux.accès)) %>%
-  mutate(tda = cut(taux.accès, c(0,0.1,0.3,0.5,0.7,0.90,1,Inf),right=FALSE)) %>%
-  group_by(Session=as.character(Session),Filière,tda) %>%
-  summarise(nadmissions = sum(Admissions,na.rm=TRUE)) %>%
-  ggplot(aes(x=tda,y=nadmissions,fill=Session)) +
-  geom_col(position = "dodge") +
-  ylab("Nombre d'admissions") +
-  xlab("Taux d'accès") +
-  facet_grid(.~Filière)
-```
-
-La figure X montre qu'il existe des « formations sélectives » qui ne sélectionnent pas,
+La figure 4 montre qu'il existe des « formations sélectives » qui ne sélectionnent pas,
 comme des « formations non sélectives » qui sélectionnent. Ce constat invite à 
 concevoir un indicateur global de sélectivité de l'affectation post-bac pour 
 permettre de suivre l'évolution de notre système. 
 
+
+\newpage
 ## Conclusion
+
+
+```{r odf, fig.cap="Formations et admissions par taille de formation"}
+session.palette <- RColorBrewer::brewer.pal(8,"RdBu")[c(1,3,5:8)]
+odf1 <- ps %>% 
+  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
+  filter(!is.na(taille)) %>%
+  group_by(Session, Filière, taille) %>% 
+  summarise(nb.formations = n()) %>%
+  mutate(Session = as.factor(Session)) %>%
+  ggplot(aes(x=taille,y=nb.formations,fill=Session)) +
+  geom_col(position="dodge") +
+  scale_fill_manual(values=session.palette) +
+  ylab("Nombre de formations") +
+  facet_wrap(.~Filière, scales = "free_y") +
+  scale_x_discrete(labels=c("<35","<70","<140","<280",">=280")) +
+  ggtitle("Nombre de formations par taille")
+
+
+odf2 <- ps %>% 
+  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
+  filter(!is.na(taille)) %>%
+  group_by(Session, Filière, taille) %>% 
+  summarise(nb.formations = sum(Admissions)) %>%
+  mutate(Session = as.factor(Session)) %>%
+  ggplot(aes(x=taille,y=nb.formations,fill=Session)) +
+  geom_col(position="dodge") +
+  scale_fill_manual(values=session.palette) +
+  ylab("Nombre d'admissions") +
+  facet_wrap(.~Filière) +
+  scale_x_discrete(labels=c("<35","<70","<140","<280",">=280")) +
+  ggtitle("Nombre d'admission par taille des formations")
+
+
+legend <- get_legend(
+  odf1 + theme(legend.position = "bottom", legend.box.margin = margin(0, 0, 0, 12)) +
+    guides(fill=guide_legend(nrow=1,byrow=TRUE))
+)
+
+plot_grid(ncol=1, rel_heights = c(1,0.1),
+          plot_grid(ncol = 1, 
+                    odf1 + theme(legend.position = "none"), 
+                    odf2 + theme(legend.position = "none")),
+          legend)
+```
+
 
 A ce stade et dans leur état, les données ouvertes ne permettent pas de confirmer 
 les discours qui ont accompagné la mise en œuvre de Parcoursup et de la loi ORE :
@@ -287,7 +402,7 @@ récente pour observer une mutation.
 Cela nous conduit à nous interroger sur l'utilisation que l’État a fait de son
 nouveau pouvoir de contrôle sur les admissions post-bac. Nous trouvons une piste
 en observant l'évolution de la distribution des tailles de formation, que montre
-la figure X.
+la figure 5.
 
 La croissance du nombre de formations hors Licence s'explique en partie par la volonté 
 d'intégrer à Parcoursup toutes les formations post-bac, y compris privées. 
@@ -295,34 +410,6 @@ L'énorme croissance spontanée en 2018 du nombre de petites Licences provient
 probablement d'une meilleure déclaration des filières existantes, dans lesquelles 
 l'inscription était auparavant faites hors APB. 
 
-```{r odf}
-session.palette <- RColorBrewer::brewer.pal(8,"RdBu")[c(1,3,5:8)]
-ps %>% 
-  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
-  filter(!is.na(taille)) %>%
-  group_by(Session, Filière, taille) %>% 
-  summarise(nb.formations = n()) %>%
-  mutate(Session = as.factor(Session)) %>%
-  ggplot(aes(x=taille,y=nb.formations,fill=Session)) +
-  geom_col(position="dodge") +
-  scale_fill_manual(values=session.palette) +
-  ylab("Nombre de formations") +
-  facet_wrap(.~Filière, scales = "free_y")
-
-
-ps %>% 
-  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
-  filter(!is.na(taille)) %>%
-  group_by(Session, Filière, taille) %>% 
-  summarise(nb.formations = sum(Admissions)) %>%
-  mutate(Session = as.factor(Session)) %>%
-  ggplot(aes(x=taille,y=nb.formations,fill=Session)) +
-  geom_col(position="dodge") +
-  scale_fill_manual(values=session.palette) +
-  ylab("Nombre d'admissions") +
-  facet_wrap(.~Filière)
-
-```
 Cependant, la diminution des 
 admissions dans les formations de très grande taille et la croissance des 
 admissions dans les effectifs de petite taille démontre une « spécialisation »
@@ -331,3 +418,7 @@ croissante de l'offre de formation, en adéquation avec le discours de
 mutation de fond, qui doit conduire à interroger la lisibilité de l'offre de 
 formation, la complexité des décisions d'affectation, et continuité de diplômes
 nationaux équivalents partout sur le territoire. 
+
+
+\newpage
+# Références
