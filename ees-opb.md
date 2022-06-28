@@ -3,10 +3,10 @@ Et si Parcoursup était compté
 
 | Method          | koRpus      | stringi       |
 |:----------------|:------------|:--------------|
-| Word count      | 1768        | 1828          |
-| Character count | 11226       | 12215         |
-| Sentence count  | 96          | Not available |
-| Reading time    | 8.8 minutes | 9.1 minutes   |
+| Word count      | 1772        | 1828          |
+| Character count | 11265       | 12230         |
+| Sentence count  | 97          | Not available |
+| Reading time    | 8.9 minutes | 9.1 minutes   |
 
 Projet d’article pour « Orientation post-bac :Parcoursup et
 l’introduction de la sélection à l’université – Varia (72/juin 2024) ».
@@ -170,6 +170,9 @@ technologiques. Il convient de nouveau d’être très prudents.
 
 ## Mesure de l’orientation : `sélectivité` des admissions post-bac.
 
+![Sélectivité des formations de
+Parcoursup](ees-opb_files/figure-gfm/sel-1.png)
+
 L’amélioration de l’orientation était une des grandes promesses de
 Parcoursup. Cependant, nous ne disposons d’aucune métrique permettant de
 vérifier cette affirmation, tant la notion de « bonne » orientation est
@@ -194,10 +197,10 @@ sélectionnent. Ce constat invite à concevoir un indicateur global de
 sélectivité de l’affectation post-bac pour permettre de suivre
 l’évolution de notre système.
 
-![Sélectivité des formations de
-Parcoursup](ees-opb_files/figure-gfm/sel-1.png)
-
 ## Conclusion
+
+![Formations et admissions par taille de
+formation](ees-opb_files/figure-gfm/odf-1.png)
 
 A ce stade et dans leur état, les données ouvertes ne permettent pas de
 confirmer les discours qui ont accompagné la mise en œuvre de Parcoursup
@@ -210,7 +213,7 @@ mutation.
 Cela nous conduit à nous interroger sur l’utilisation que l’État a fait
 de son nouveau pouvoir de contrôle sur les admissions post-bac. Nous
 trouvons une piste en observant l’évolution de la distribution des
-tailles de formation, que montre la figure X.
+tailles de formation, que montre la figure 5.
 
 La croissance du nombre de formations hors Licence s’explique en partie
 par la volonté d’intégrer à Parcoursup toutes les formations post-bac, y
@@ -219,15 +222,16 @@ petites Licences provient probablement d’une meilleure déclaration des
 filières existantes, dans lesquelles l’inscription était auparavant
 faites hors APB.
 
-![](ees-opb_files/figure-gfm/odf-1.png)<!-- --> Cependant, la diminution
-des admissions dans les formations de très grande taille et la
-croissance des admissions dans les effectifs de petite taille démontre
-une « spécialisation » croissante de l’offre de formation, en adéquation
-avec le discours de « personnalisation des parcours ». Cette
-spécialisation est probablement une mutation de fond, qui doit conduire
-à interroger la lisibilité de l’offre de formation, la complexité des
-décisions d’affectation, et continuité de diplômes nationaux équivalents
-partout sur le territoire.
+Cependant, la diminution des admissions dans les formations de très
+grande taille et la croissance des admissions dans les effectifs de
+petite taille démontre une « spécialisation » croissante de l’offre de
+formation, en adéquation avec le discours de « personnalisation des
+parcours ». Cette spécialisation est probablement une mutation de fond,
+qui doit conduire à interroger la lisibilité de l’offre de formation, la
+complexité des décisions d’affectation, et continuité de diplômes
+nationaux équivalents partout sur le territoire.
+
+# Références
 
 <div id="refs" class="references csl-bib-body hanging-indent">
 

@@ -3,8 +3,8 @@ title: "Et si Parcoursup était compté"
 authors: Pauline Boyer et Julien Gossa, Université de Strasbourg
 output: 
   
-  pdf_document: default
   github_document: default
+  pdf_document: default
 bibliography: 20220630-Parcoursup.bib
 ---
 
@@ -15,7 +15,7 @@ library(tidyverse)
 library(cowplot)
 options(dplyr.summarise.inform = FALSE)
 
-theme_set(theme_minimal())
+theme_set(theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
 ```
 
 ```{r wc, warning=FALSE}
