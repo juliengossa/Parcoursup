@@ -3,8 +3,8 @@ Et si Parcoursup était compté
 
 | Method          | koRpus      | stringi       |
 |:----------------|:------------|:--------------|
-| Word count      | 1763        | 1813          |
-| Character count | 11200       | 11955         |
+| Word count      | 1768        | 1828          |
+| Character count | 11226       | 12215         |
 | Sentence count  | 96          | Not available |
 | Reading time    | 8.8 minutes | 9.1 minutes   |
 
@@ -92,6 +92,9 @@ systématiquement discutées publiquement sur le réseau social Twitter.
 
 ### Mesures de la procédure d’affectation : `Vitesse et débit`
 
+![Tableaux de bord Parcoursup et vitesse de
+l’affectation](ees-opb_files/figure-gfm/aff-1.png)
+
 La mesure communément retenue pour mesurer la qualité d’une affectation
 est le niveau de satisfaction des candidates et candidats. Les sessions
 APB étaient ainsi qualifiées en mesurant le taux de premiers vœux
@@ -101,13 +104,11 @@ proposition, et le temps qu’il faut pour la recevoir. Le taux de
 propositions définitivement acceptées est encore disponible dans le
 bilan, mais a disparu des tableaux de bord quotidiens.
 
-La figure X gauche montre le tableau de bord Parcoursup en 2018 et 2022,
-et permet de s’interroger sur le but poursuivi par ces modifications
-(Julien Gossa 2020). La dernière version ne permet plus de connaitre
-combien d’affectations ont été définitivement acceptées. La figure X
-droite montre la vitesse de l’affectation.
-
-\[captures TDB et SIES\]
+La figure 1 gauche montre le tableau de bord Parcoursup en 2018[^9] et
+2022[^10], et permet de s’interroger sur le but poursuivi par ces
+modifications (Julien Gossa 2020). La dernière version ne permet plus de
+connaitre combien d’affectations ont été définitivement acceptées. La
+figure 1 droite montre la vitesse de l’affectation [^11].
 
 Les mesures de la procédures d’affectation témoignent donc d’une
 transition d’une logique de satisfaction des candidats à une logique de
@@ -115,6 +116,9 @@ gestion des flux, où la qualité de l’affectation s’est éclipsée au
 profit de sa vitesse et de son débit.
 
 ### Mesures de la procédure d’affectation : `Taux de remplissage`
+
+![Taux de remplissage des formations
+post-bac](ees-opb_files/figure-gfm/pnp-1.png)
 
 Le nombre de places proposées mais non pourvues ne fait pas partie des
 mesures officielles, mais est regardé de près notamment par le CESP. Ce
@@ -126,7 +130,7 @@ capacités matérielles réelles surtout jusqu’en 2019. De plus, les
 admissions sont limitées à celles gérées par Parcoursup, donc partielles
 : des places pourvues peuvent apparaître comme vacantes.
 
-La Figure X gauche présente le nombre de places non pourvues, calculées
+La Figure 2 gauche présente le nombre de places non pourvues, calculées
 comme la différence entre les capacités d’accueil officielles et les
 admissions dans APB/Parcoursup. Malgré des tendances clairement
 apparentes, on ne peut en déduire ni que les universités auraient
@@ -135,15 +139,16 @@ désaffection. Ceci illustre la grande difficulté de construire des
 indicateurs fiables : le nombre de `places non pourvues` n’est pas le
 nombre réel de `places vacantes`.
 
-Les figures X droite montrent la même information sous la forme de taux
+Les figures 2 droite montrent la même information sous la forme de taux
 globaux ou moyens, racontant à chaque fois une histoire différente. Ceci
 démontre la nécessite de prendre beaucoup de précautions lorsqu’on
 manipule cette information, et peut-être la nécessite de créer un
 véritable indicateur `places vacantes`.
 
-![](ees-opb_files/figure-gfm/pnp-1.png)<!-- -->![](ees-opb_files/figure-gfm/pnp-2.png)<!-- -->![](ees-opb_files/figure-gfm/pnp-3.png)<!-- -->
-
 ## Mesure du `taux de poursuite d'étude` et l’`éviction`
+
+![Taux de poursuite et nombre de non-poursuites d’étude des
+néo-bacheliers](ees-opb_files/figure-gfm/pe-1.png)
 
 Comme le montre l’exemple ci-dessus, les données de Parcoursup peuvent
 être trop partielles pour avoir une vision complète d’un phénomène. Pour
@@ -156,14 +161,12 @@ jeu est cependant aveugle aux autres candidatures, et notamment les
 étrangers et reprises et d’étude, dont l’admission est pourtant un grand
 enjeu.
 
-La figure X montre à gauche les taux de poursuite d’étude et à droit le
+La figure 3 montre à gauche les taux de poursuite d’étude et à droit le
 nombre absolu de non poursuivants. Là encore, ce sont deux histoires
 différentes qui sont racontées, allant de l’amélioration des taux de
 poursuite pour les bacheliers professionnels, à une entrée de plus en
 plus difficile dans le supérieur pour les bac généraux et
 technologiques. Il convient de nouveau d’être très prudents.
-
-![](ees-opb_files/figure-gfm/pe-1.png)<!-- -->![](ees-opb_files/figure-gfm/pe-2.png)<!-- -->
 
 ## Mesure de l’orientation : `sélectivité` des admissions post-bac.
 
@@ -185,13 +188,14 @@ candidatures à certaines formations. Cette difficulté explique que le
 soit accessible qu’à partir de 2020. Il est donc difficile d’évaluer
 clairement l’impact de Parcoursup sur cet aspect.
 
-![](ees-opb_files/figure-gfm/sel-1.png)<!-- -->![](ees-opb_files/figure-gfm/sel-2.png)<!-- -->
-
-La figure X montre qu’il existe des « formations sélectives » qui ne
+La figure 4 montre qu’il existe des « formations sélectives » qui ne
 sélectionnent pas, comme des « formations non sélectives » qui
 sélectionnent. Ce constat invite à concevoir un indicateur global de
 sélectivité de l’affectation post-bac pour permettre de suivre
 l’évolution de notre système.
+
+![Sélectivité des formations de
+Parcoursup](ees-opb_files/figure-gfm/sel-1.png)
 
 ## Conclusion
 
@@ -215,15 +219,15 @@ petites Licences provient probablement d’une meilleure déclaration des
 filières existantes, dans lesquelles l’inscription était auparavant
 faites hors APB.
 
-![](ees-opb_files/figure-gfm/odf-1.png)<!-- -->![](ees-opb_files/figure-gfm/odf-2.png)<!-- -->
-Cependant, la diminution des admissions dans les formations de très
-grande taille et la croissance des admissions dans les effectifs de
-petite taille démontre une « spécialisation » croissante de l’offre de
-formation, en adéquation avec le discours de « personnalisation des
-parcours ». Cette spécialisation est probablement une mutation de fond,
-qui doit conduire à interroger la lisibilité de l’offre de formation, la
-complexité des décisions d’affectation, et continuité de diplômes
-nationaux équivalents partout sur le territoire.
+![](ees-opb_files/figure-gfm/odf-1.png)<!-- --> Cependant, la diminution
+des admissions dans les formations de très grande taille et la
+croissance des admissions dans les effectifs de petite taille démontre
+une « spécialisation » croissante de l’offre de formation, en adéquation
+avec le discours de « personnalisation des parcours ». Cette
+spécialisation est probablement une mutation de fond, qui doit conduire
+à interroger la lisibilité de l’offre de formation, la complexité des
+décisions d’affectation, et continuité de diplômes nationaux équivalents
+partout sur le territoire.
 
 <div id="refs" class="references csl-bib-body hanging-indent">
 
@@ -448,3 +452,9 @@ London New York: CRC Press, Taylor & Francis Group.
 [^7]: <https://github.com/juliengossa/parcoursup/>
 
 [^8]: <https://github.com/cpesr/RFC/>
+
+[^9]: <https://cache.media.enseignementsup-recherche.gouv.fr/file/mai_2018/61/9/Indicateurs23mai_952619.pdf>
+
+[^10]: <https://www.parcoursup.fr/tdb-indicateurs/Tableau_de_bord_Admission_2022-06-08.pdf>
+
+[^11]: <https://www.enseignementsup-recherche.gouv.fr/sites/default/files/2021-10/nf-sies-2021-22-14419.pdf>
