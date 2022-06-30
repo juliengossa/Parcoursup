@@ -1,14 +1,9 @@
 Et si Parcoursup était compté
 ================
+Pauline Boyer, <pauline.boyer@cnrs.fr>Julien Gossa,
+<gossa@unistra.fr>Université de Strasbourg
 
-| Method          | koRpus      | stringi       |
-|:----------------|:------------|:--------------|
-| Word count      | 1772        | 1828          |
-| Character count | 11265       | 12230         |
-| Sentence count  | 97          | Not available |
-| Reading time    | 8.9 minutes | 9.1 minutes   |
-
-Projet d’article pour « Orientation post-bac :Parcoursup et
+Projet d’article pour « Orientation post-bac : Parcoursup et
 l’introduction de la sélection à l’université – Varia (72/juin 2024) ».
 
 Axes : transversal.
@@ -21,35 +16,36 @@ l’enseignement supérieur en France. De prime abord, la différence entre
 APB et Parcoursup tient surtout à l’organisation globale de la
 procédure, la façon dont les candidatures sont formulées et les
 propositions retenues, ainsi que les informations disponibles pour faire
-ces choix. Si l’algorithme qui sous-tend l’affectation, Gale-Shapley,
-n’a pas changé (Courant and Gossa 2019), la façon dont les différents
-acteurs appréhendent ce moment est bouleversé (Bodin, Mengneau, and
-Orange 2020 ; Bodin and Orange 2019 ; Daverne-Bailly and Bobineau 2020 ;
-Mizzi 2022 ; Frouillou, Pin, and Zanten 2019 ; Frouillou, Pin, and
-Zanten 2020 ; Chauvel and Hugrée 2019 ), encore plus après la réforme du
-Lycée général (Caillot and Sidokpohou 2022). Plus globalement,
-Parcoursup est aussi le synonyme de transformations dans la répartition
-des néo-bacheliers dans l’enseignement supérieur (Nagui Bechichi, Julien
-Grenet, and Georgia Thebault 2021).
+ces choix. Si l’algorithme d’affectation est toujours Gale-Shapley, la
+façon dont les différents acteurs appréhendent ce moment est transformé
+(Bodin, Mengneau, and Orange 2020 ; Bodin and Orange 2019 ;
+Daverne-Bailly and Bobineau 2020 ; Mizzi 2022 ; Frouillou, Pin, and
+Zanten 2019 ; Frouillou, Pin, and Zanten 2020 ; Chauvel and Hugrée 2019
+), encore plus après la réforme du Lycée général (Caillot and Sidokpohou
+2022).
 
-Parcoursup a été introduit par la loi ORE (Orientation et Réussite des
+Plus globalement, Parcoursup est aussi le synonyme de transformations
+dans la répartition des néo-bacheliers dans l’enseignement supérieur
+(Nagui Bechichi, Julien Grenet, and Georgia Thebault 2021). La
+plateforme est introduite par la loi ORE (Orientation et Réussite des
 Etudiants), conçue pour faire face au problème des places dans
 l’enseignement supérieur mais qui ouvre plus de questions qu’elle n’en
-ferme (Beaud and Vatin 2018). Cette loi dispose de deux transformations
-techniques mais majeures.
+ferme (Beaud and Vatin 2018). Elle dispose de deux transformations
+majeures.
 
 La première est la suppression de la phrase « *Tout candidat est libre
 de s’inscrire dans l’établissement de son choix* » du L612-3 du Code de
-l’éducation. Cette suppression abaisse le poids des candidats dans les
-décisions d’affectation, puisque l’entrée en Licence n’est plus de droit
-mais soumise à une forme de sélection.
+l’éducation [^1]. Cette suppression abaisse le poids des candidats dans
+les décisions d’affectation, puisque l’entrée en Licence n’est plus de
+droit mais désormais conditionnée par l’étude d’un dossier de
+candidature.
 
 La seconde est l’introduction, dans le même article, de la phrase : «
 *Les capacités d’accueil \[…\] sont arrêtées chaque année par l’autorité
 académique après dialogue avec chaque établissement.* ». L’autorité
 académique désigne le rectorat, représentant de l’État dans les
 académies. Cet ajout abaisse le poids des établissements dans les
-décisions d’affection, puisqu’ils n’obtienne pas le contrôle sur les
+décisions d’affection, puisqu’ils n’obtiennent pas le contrôle sur les
 capacités d’accueil en Licence, mais en plus le perdent pour les
 formations sélectives (IUT et double Licences, notamment).
 
@@ -57,118 +53,137 @@ Au delà de l’impact sur les familles et équipes pédagogique, et comme en
 témoigne le nombre de rapports publics à son sujet (Cour des comptes
 2017 ; Cour des Comptes 2020 ; Noëlle Lenoir, présidente et al. 2019 ;
 Isabelle Falque-Pierrotin et al. 2020 ; Isabelle Falque-Pierrotin et al.
-2021 ; Isabelle Falque-Pierrotin, présidente et al. 2022 ; JUANICO and
-SARLES 2020 ; CSORE 2019 ), Parcoursup est donc aussi un outil d’action
-publique, permettant à l’État de mieux contrôler les flux du « -3/+3 ».
-Cela nous conduit à nous interroger sur les indicateurs de cette action
-publique, ceux mis en place pour l’actionner ou la qualifier, comme ceux
-qui en ont disparu. Ce projet d’article propose donc de s’intéresser à
-ces indicateurs, dans le temps, pour mieux percevoir à la fois l’état
-actuel et l’orientation que prennent les affectations dans le supérieur.
+2021 ; Isabelle Falque-Pierrotin, présidente et al. 2022 ; Juanico and
+Sarles 2020 ; CSORE 2019 ), Parcoursup est donc aussi un outil d’action
+publique, permettant à l’État de mieux contrôler les flux du « -3/+3 »
+notamment via leur évaluation par des indicateurs consultables librement
+sur la plateforme ministérielle \#dataESR[^2]. Dans le prolongement des
+travaux en sociologie de la quantification, ce projet d’article propose
+de s’intéresser à ce que les indicateurs \#dataESR nous disent des
+orientations des politiques publiques d’affectation post-bac, ce qui
+sera l’occasion de montrer le passage d’une logique de satisfaction des
+usagers à une logique de gestion des flux. Lorsque c’est pertinent, nous
+tenterons d’opposer une rationalité différente de celle des indicateurs
+officiels via la conception d’indicateurs alternatifs basés sur
+l’exploration des données ouvertes. Enfin, nous proposons de montrer la
+difficulté de construire des indicateurs fiables, et la possibilité
+presque systématique de « raconter des histoires différentes » à partir
+des mêmes données.
+
+*Note* : En discussion avec les éditeurs, l’article peut faire plus ou
+moins de place à chacun des aspects ci-dessus, ou se concentrer sur
+certaines questions plus précises. L’article peut être écrit en écriture
+inclusive, avec ou sans utilisation du point médian.
 
 ## Méthodologie
 
-Notre méthodologie est au croisement des sciences des données et des
-sciences de l’action publique. Elle s’appuie sur deux piliers. D’une
-part, une veille systématique des données ouvertes, tableaux de bord et
-communiqués sur ces données permet de construire un état de l’art des
-informations publiques disponibles sur l’affectation dans l’enseignement
-supérieur, ce qu’on pourrait qualifier de meta-informations. D’autre
-part, l’analyse de ces données, par des traitements et représentations
-en sources ouvertes, permet de créer de l’information nouvelle pour
-mieux percevoir et suivre l’évolution de notre système.
+Notre méthodologie se situe au croisement des sciences des données et
+des sciences de l’action publique. Elle s’appuie sur deux piliers. D’une
+part, une veille systématique des données ouvertes, tableaux de bord,
+notes d’information et communiqués permet de construire un état de l’art
+des informations publiques disponibles sur l’affectation post-bac, ce
+qu’on pourrait qualifier de meta-informations. D’autre part, l’analyse
+de ces données, par des traitements et représentations en sources
+ouvertes, permet de créer de l’information nouvelle pour mieux percevoir
+et suivre l’évolution de notre système.
 
-Les données sont pour l’essentiel en provenance directement de la
-plateforme de données ouvertes du ministère [^1] [^2] [^3] [^4] [^5]
-[^6], donc celles utilisée pour alimenter Parcoursup, ses tableaux de
-bord, et les notes d’information du ministère. Les traitements sont
-effectués en R (Xie, Allaire, and Grolemund 2019) et les représentations
-en ggplot (Wickham 2009 ; Wilke 2019). Ils sont mis en ligne et
-librement accessibles sur la plateforme GitHub[^7], ainsi que les
-brouillons exploratoires [^8]. Les informations étonnantes sont
-systématiquement discutées publiquement sur le réseau social Twitter.
+Les données proviennent pour l’essentiel de la plateforme de données
+ouvertes du ministère [^3] [^4] [^5] [^6] [^7] [^8], également utilisée
+pour alimenter Parcoursup, ses tableaux de bord, et les notes
+d’information du ministère. Les traitements sont effectués en R (Xie,
+Allaire, and Grolemund 2019) et les représentations en ggplot (Wickham
+2009 ; Wilke 2019). Ils sont mis en ligne et librement accessibles sur
+la plateforme GitHub[^9], ainsi que les brouillons exploratoires [^10].
+Les irrégularités ou incohérences apparentes sont systématiquement
+discutées publiquement sur le réseau social Twitter.
 
-## Principaux résulats
+## Résumé des conclusions
 
-### Mesures de la procédure d’affectation : `Vitesse et débit`
+A ce stade et dans leur état, les données ouvertes ne permettent pas de
+confirmer les discours qui ont accompagné la mise en œuvre de Parcoursup
+et de la loi ORE : on n’observe ni d’amélioration de la satisfaction des
+étudiants ou des formations, ni des taux de remplissage ; les taux de
+poursuite d’étude ne montrent ni ouverture ni éviction ; la mesure de la
+sélectivité est trop récente pour observer une mutation.
+
+Cela nous conduit à nous interroger sur l’utilisation que l’État a fait
+de son nouveau pouvoir de contrôle sur les admissions post-bac, et à
+mettre en évidence des mutation dans l’offre de formation.
+
+## Principaux résultats
+
+### De la `satisfaction` au `débit`
 
 ![Tableaux de bord Parcoursup et vitesse de
 l’affectation](ees-opb_files/figure-gfm/aff-1.png)
 
-La mesure communément retenue pour mesurer la qualité d’une affectation
-est le niveau de satisfaction des candidates et candidats. Les sessions
-APB étaient ainsi qualifiées en mesurant le taux de premiers vœux
-satisfaits. Cette mesure a disparu avec Parcoursup, et on lui substitue
-désormais le taux de candidates et candidats ayant reçu au moins une
-proposition, et le temps qu’il faut pour la recevoir. Le taux de
-propositions définitivement acceptées est encore disponible dans le
-bilan, mais a disparu des tableaux de bord quotidiens.
+D’APB à Parcoursup, on observe une évolution des indicateurs de mesure
+de la qualité des affectations. Avec APB, le taux de premiers vœux
+satisfaits mesurait le niveau de satisfaction des candidats. Avec
+Parcoursup, cette mesure est substituée par deux indicateurs : le taux
+de candidats ayant reçu au moins une proposition, et le temps qu’il faut
+pour la recevoir. En quelque sorte : la `vitesse` ou `débit`.
 
-La figure 1 gauche montre le tableau de bord Parcoursup en 2018[^9] et
-2022[^10], et permet de s’interroger sur le but poursuivi par ces
-modifications (Julien Gossa 2020). La dernière version ne permet plus de
-connaitre combien d’affectations ont été définitivement acceptées. La
-figure 1 droite montre la vitesse de l’affectation [^11].
+La figure 1 gauche montre le tableau de bord Parcoursup en 2018[^11] et
+2022[^12], et permet de s’interroger sur le but poursuivi par ces
+modifications (Julien Gossa 2020). Notamment, la dernière version ne
+permet plus de connaitre combien d’affectations ont été définitivement
+acceptées. La figure 1 droite montre la vitesse de l’affectation [^13].
 
 Les mesures de la procédures d’affectation témoignent donc d’une
 transition d’une logique de satisfaction des candidats à une logique de
 gestion des flux, où la qualité de l’affectation s’est éclipsée au
-profit de sa vitesse et de son débit.
+profit de son débit.
 
-### Mesures de la procédure d’affectation : `Taux de remplissage`
+### `Places non pourvues`, `Places vacantes` et `Taux de remplissage`
 
 ![Taux de remplissage des formations
 post-bac](ees-opb_files/figure-gfm/pnp-1.png)
 
 Le nombre de places proposées mais non pourvues ne fait pas partie des
-mesures officielles, mais est regardé de près notamment par le CESP. Ce
-dernier préconise son abaissement pour améliorer les performances de la
-plateforme. Cette mesure est rendue difficile par une mauvaise
-déclaration des capacités d’accueil officielles des formations,
-notamment en Licences où elles peuvent être sans rapport avec les
-capacités matérielles réelles surtout jusqu’en 2019. De plus, les
-admissions sont limitées à celles gérées par Parcoursup, donc partielles
-: des places pourvues peuvent apparaître comme vacantes.
+mesures officielles, mais est regardé de près notamment par le CESP, qui
+le perçoit comme une marge d’amélioration. La Figure 2 gauche présente
+le nombre de `places non pourvues`, calculées comme la différence entre
+les `capacités d'accueil` officielles et les `admissions` dans
+APB/Parcoursup.
 
-La Figure 2 gauche présente le nombre de places non pourvues, calculées
-comme la différence entre les capacités d’accueil officielles et les
-admissions dans APB/Parcoursup. Malgré des tendances clairement
-apparentes, on ne peut en déduire ni que les universités auraient
-remplies 300 000 places vacantes, ni que les BTS seraient en voie de
-désaffection. Ceci illustre la grande difficulté de construire des
-indicateurs fiables : le nombre de `places non pourvues` n’est pas le
-nombre réel de `places vacantes`.
+Malgré des tendances clairement apparentes, on ne peut en déduire ni que
+les universités auraient remplies 300 000 places vacantes, ni que les
+BTS seraient en voie de désaffection.
 
-Les figures 2 droite montrent la même information sous la forme de taux
-globaux ou moyens, racontant à chaque fois une histoire différente. Ceci
-démontre la nécessite de prendre beaucoup de précautions lorsqu’on
-manipule cette information, et peut-être la nécessite de créer un
-véritable indicateur `places vacantes`.
+En effet, les `capacités d'accueil` sont mal déclarées notamment pour
+les Licences jusqu’en 2019, et les `admissions` ne sont que
+partiellement comptabilisées : le nombre de `places non pourvues` par
+Parcoursup n’est pas le nombre réel de `places vacantes` dans les
+formations.
 
-## Mesure du `taux de poursuite d'étude` et l’`éviction`
+Les figures 2 droite montrent la même information sous la forme de
+`taux remplissage globaux` et `moyens`, racontant à chaque fois une
+histoire différente. Ceci démontre la nécessite de prendre beaucoup de
+précautions lorsqu’on manipule cette information, et peut-être la
+nécessite de créer un véritable indicateur `places vacantes`.
+
+## `Taux de poursuite d'étude` et `Nombre de non poursuites d'étude`
 
 ![Taux de poursuite et nombre de non-poursuites d’étude des
 néo-bacheliers](ees-opb_files/figure-gfm/pe-1.png)
 
-Comme le montre l’exemple ci-dessus, les données de Parcoursup peuvent
-être trop partielles pour avoir une vision complète d’un phénomène. Pour
-percevoir la trajectoire des jeunes entre le Lycée et le supérieur, le
-SIES a mis à disposition un jeu de données ouvertes de suivi des
-bacheliers, qui croise plusieurs bases de données. Il permet de mieux
-percevoir les évolutions des poursuites d’étude, de l’orientation et des
-évictions, par académie, secteurs et filières du bac et du supérieur. Ce
-jeu est cependant aveugle aux autres candidatures, et notamment les
-étrangers et reprises et d’étude, dont l’admission est pourtant un grand
-enjeu.
+Un récent jeu de données[^14], permet percevoir les évolutions des
+poursuites d’étude, par académie, secteurs et filières du bac et du
+supérieur. Ce jeu est cependant aveugle aux autres candidatures, et
+notamment à celles des étudiants ayant un équivalent de baccalauréat
+étranger et ceux en reprise d’étude, dont l’admission est pourtant un
+grand enjeu.
 
-La figure 3 montre à gauche les taux de poursuite d’étude et à droit le
-nombre absolu de non poursuivants. Là encore, ce sont deux histoires
-différentes qui sont racontées, allant de l’amélioration des taux de
+La figure 3 montre à gauche les taux de poursuite d’étude et à droite le
+nombre absolu de non poursuivants. Là encore, selon l’indicateur, on
+obtient deux récits différents, allant de l’amélioration des taux de
 poursuite pour les bacheliers professionnels, à une entrée de plus en
 plus difficile dans le supérieur pour les bac généraux et
-technologiques. Il convient de nouveau d’être très prudents.
+technologiques. Il convient donc d’être très prudents, mais on peut
+néanmoins invalider l’hypothèse d’une éviction de masse dès 2018.
 
-## Mesure de l’orientation : `sélectivité` des admissions post-bac.
+## `Taux d'accès` et mesure de la `sélectivité`
 
 ![Sélectivité des formations de
 Parcoursup](ees-opb_files/figure-gfm/sel-1.png)
@@ -176,39 +191,33 @@ Parcoursup](ees-opb_files/figure-gfm/sel-1.png)
 L’amélioration de l’orientation était une des grandes promesses de
 Parcoursup. Cependant, nous ne disposons d’aucune métrique permettant de
 vérifier cette affirmation, tant la notion de « bonne » orientation est
-vague. Même en la réduisant au taux de réussite sans redoublement, il
-est impossible de séparer l’effet d’une meilleure orientation, d’une
-meilleure pédagogie, ou d’un abaissement des exigences.
+vague[^15].
 
-En revanche, on peut s’intéresser aux taux de sélection, pour percevoir
-l’équilibre entre la liberté de choix des candidats et les classements
-des candidatures pas les formations. Une fois de plus, cette mesure est
-délicate : l’organisation de la procédure fait qu’il est difficile de
-calculer avec certitude le rang du dernier appelé ; et les vœux groupés
-et admissions communes peuvent augmenter artificiellement le nombre de
-candidatures à certaines formations. Cette difficulté explique que le
-`taux d'accès` mesure officielle de la sélectivité des formations, ne
-soit accessible qu’à partir de 2020. Il est donc difficile d’évaluer
-clairement l’impact de Parcoursup sur cet aspect.
+En revanche, on peut s’intéresser au `taux d'accès`, qui est la mesure
+officielle de la sélectivité des formations dans Parcoursup, et donc de
+l’équilibre entre la liberté de choix des candidats (taux très haut) et
+les classements des candidatures par les formations (taux bas).
 
-La figure 4 montre qu’il existe des « formations sélectives » qui ne
-sélectionnent pas, comme des « formations non sélectives » qui
-sélectionnent. Ce constat invite à concevoir un indicateur global de
-sélectivité de l’affectation post-bac pour permettre de suivre
-l’évolution de notre système.
+Une fois de plus, pour des raisons techniques, cette mesure est
+délicate, ce explique que ce taux ne soit accessible qu’à partir de
+2020. Il est donc difficile d’évaluer clairement l’impact de Parcoursup
+sur cet aspect.
+
+La figure 4 montre cependant qu’il existe des « formations sélectives »
+(gauche) qui ne sélectionnent pas, comme des « formations non sélectives
+» (droite) qui sélectionnent. Ce constat invite à concevoir un
+indicateur global de sélectivité de l’affectation post-bac pour
+permettre de suivre l’évolution de notre système, tant sous l’angle des
+formations que des admissions[^16].
 
 ## Conclusion
-
-![Formations et admissions par taille de
-formation](ees-opb_files/figure-gfm/odf-1.png)
 
 A ce stade et dans leur état, les données ouvertes ne permettent pas de
 confirmer les discours qui ont accompagné la mise en œuvre de Parcoursup
 et de la loi ORE : on n’observe ni d’amélioration de la satisfaction des
-étudiants ou des formations, ni des taux de remplissage ; le taux de
-poursuite d’étude augmente légèrement, mais le nombre d’évictions reste
-stable ; la mesure de la sélectivité est trop récente pour observer une
-mutation.
+étudiants ou des formations, ni des taux de remplissage ; les taux de
+poursuite d’étude ne montrent ni ouverture ni éviction ; la mesure de la
+sélectivité est trop récente pour observer une mutation.
 
 Cela nous conduit à nous interroger sur l’utilisation que l’État a fait
 de son nouveau pouvoir de contrôle sur les admissions post-bac. Nous
@@ -223,13 +232,16 @@ filières existantes, dans lesquelles l’inscription était auparavant
 faites hors APB.
 
 Cependant, la diminution des admissions dans les formations de très
-grande taille et la croissance des admissions dans les effectifs de
-petite taille démontre une « spécialisation » croissante de l’offre de
+grande taille et la croissance des admissions dans les formations de
+petite taille démontrent une « spécialisation » croissante de l’offre de
 formation, en adéquation avec le discours de « personnalisation des
 parcours ». Cette spécialisation est probablement une mutation de fond,
-qui doit conduire à interroger la lisibilité de l’offre de formation, la
-complexité des décisions d’affectation, et continuité de diplômes
-nationaux équivalents partout sur le territoire.
+qui doit nous conduire à interroger la lisibilité de l’offre de
+formation, la complexité des décisions d’affectation, et continuité de
+diplômes nationaux équivalents partout sur le territoire.
+
+![Formations et admissions par taille de
+formation](ees-opb_files/figure-gfm/odf-1.png)
 
 # Références
 
@@ -291,14 +303,6 @@ Supérieur - Un Dispositif Contesté à Réformer.”
 Cour des Comptes. 2020. “Un Premier Bilan de l’accès à l’enseignement
 Supérieur Dans Le Cadre de La Loi Orientation Et Réussite Des
 Étudiants.” Cour des comptes.
-
-</div>
-
-<div id="ref-courant_automatisation_2019" class="csl-entry">
-
-Courant, Judicaël, and Julien Gossa. 2019. “De l’automatisation de
-l’affectation Dans l’enseignement Supérieur.” In.
-<https://hal.archives-ouvertes.fr/hal-02967579>.
 
 </div>
 
@@ -374,7 +378,7 @@ Chemins:” Comité éthique et scientifique de Parcoursup.
 
 <div id="ref-juanico_rapport_2020" class="csl-entry">
 
-JUANICO, RÉGIS, and NATHALIE SARLES. 2020. “Rapport d’information Sur
+Juanico, RÉGIS, and NATHALIE Sarles. 2020. “Rapport d’information Sur
 l’évaluation de l’accès à l’enseignement Supérieur.” Assemblée
 nationale.
 <http://www.assemblee-nationale.fr/dyn/15/rapports/cec/l15b3232_rapport-information.pdf>.
@@ -441,24 +445,38 @@ London New York: CRC Press, Taylor & Francis Group.
 
 </div>
 
-[^1]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/>
+[^1]: <https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042815027/>
 
-[^2]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup_2020/>
+[^2]: <https://data.enseignementsup-recherche.gouv.fr/pages/home/>
 
-[^3]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup-2019/>
+[^3]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup/>
 
-[^4]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup-2018/>
+[^4]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup_2020/>
 
-[^5]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-apb_voeux-et-admissions/>
+[^5]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup-2019/>
 
-[^6]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-taux-poursuite-enseignement-superieur-par-academie/>
+[^6]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-parcoursup-2018/>
 
-[^7]: <https://github.com/juliengossa/parcoursup/>
+[^7]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-apb_voeux-et-admissions/>
 
-[^8]: <https://github.com/cpesr/RFC/>
+[^8]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-taux-poursuite-enseignement-superieur-par-academie/>
 
-[^9]: <https://cache.media.enseignementsup-recherche.gouv.fr/file/mai_2018/61/9/Indicateurs23mai_952619.pdf>
+[^9]: <https://github.com/juliengossa/parcoursup/>
 
-[^10]: <https://www.parcoursup.fr/tdb-indicateurs/Tableau_de_bord_Admission_2022-06-08.pdf>
+[^10]: <https://github.com/cpesr/RFC/>
 
-[^11]: <https://www.enseignementsup-recherche.gouv.fr/sites/default/files/2021-10/nf-sies-2021-22-14419.pdf>
+[^11]: <https://cache.media.enseignementsup-recherche.gouv.fr/file/mai_2018/61/9/Indicateurs23mai_952619.pdf>
+
+[^12]: <https://www.parcoursup.fr/tdb-indicateurs/Tableau_de_bord_Admission_2022-06-08.pdf>
+
+[^13]: <https://www.enseignementsup-recherche.gouv.fr/sites/default/files/2021-10/nf-sies-2021-22-14419.pdf>
+
+[^14]: <https://data.enseignementsup-recherche.gouv.fr/explore/dataset/fr-esr-taux-poursuite-enseignement-superieur-par-academie/>
+
+[^15]: Même en la réduisant au taux de réussite sans redoublement, il
+    est impossible de séparer l’effet d’une meilleure orientation, d’une
+    meilleure pédagogie, ou d’un abaissement des exigences.
+
+[^16]: et à supprimer la distinctions légales entre « formations
+    sélectives » et « non sélectives », comme le proposent déjà la Cour
+    des comptes et le CESP
