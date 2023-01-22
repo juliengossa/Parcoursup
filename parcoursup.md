@@ -11,21 +11,24 @@ Untitled
 
 ![](parcoursup_files/figure-gfm/info.total-1.png)<!-- -->
 
-    ## geom_path: Each group consists of only one observation. Do you need to adjust
-    ## the group aesthetic?
+    ## `geom_line()`: Each group consists of only one observation.
+    ## ℹ Do you need to adjust the group aesthetic?
 
 ![](parcoursup_files/figure-gfm/info.fil-1.png)<!-- -->
 
-    ## geom_path: Each group consists of only one observation. Do you need to adjust
-    ## the group aesthetic?
+    ## `geom_line()`: Each group consists of only one observation.
+    ## ℹ Do you need to adjust the group aesthetic?
 
 ![](parcoursup_files/figure-gfm/info.fil.capad-1.png)<!-- -->
 
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
+
 ![](parcoursup_files/figure-gfm/info.fil.ad-1.png)<!-- -->
 
-    ## Warning: Removed 6 row(s) containing missing values (geom_path).
+    ## Warning: Removed 6 rows containing missing values (`geom_line()`).
 
-    ## Warning: Removed 6 rows containing missing values (geom_point).
+    ## Warning: Removed 6 rows containing missing values (`geom_point()`).
 
 ![](parcoursup_files/figure-gfm/info.L-1.png)<!-- -->
 

@@ -5,6 +5,7 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(fig.retina = 2)
 library(tidyverse)
 library(ggcpesrthemes)
 
@@ -17,12 +18,12 @@ spoilerTable <- function(df) {
   cat("\n\n</details>\n")
 }
 
-formations <- xlsx::read.xlsx("Formations ES.xlsx", sheetIndex = 1)
-candidats <- xlsx::read.xlsx("Candidats ES2024.xlsx", sheetIndex = 1)
+formations <- xlsx::read.xlsx("data/Formations ES.xlsx", sheetIndex = 1)
+candidats <- xlsx::read.xlsx("data/Candidats ES2024.xlsx", sheetIndex = 1)
 codes.lycées <- unique(candidats$NA.)
 code.region <- "Nouvelle-Aquitaine"
-lycees <- read.csv2("fr-en-indicateurs-de-resultat-des-lycees-denseignement-general-et-technologique.csv", dec='.')
-parcoursup <- read.csv2("fr-esr-parcoursup-2021-xls.csv", dec='.')
+lycees <- read.csv2("data/fr-en-indicateurs-de-resultat-des-lycees-denseignement-general-et-technologique.csv", dec='.')
+parcoursup <- read.csv2("data/fr-esr-parcoursup-2021-xls.csv", dec='.')
 ```
 
 
@@ -55,7 +56,7 @@ lycees %>%
     data = . %>% filter(code_etablissement %in% codes.lycées),
     color = "red") +
   xlab("Nombre de bacheliers") +
-  ylab("Taux de mention") +
+  scale_y_continuous(labels = ~ paste0(.x,"%"), name = "Taux de mention") +
   theme_cpesr() +
   theme(
     legend.position = "none",
@@ -138,11 +139,32 @@ parcoursup %>%
     data = . %>% filter(Filière.de.formation.détaillée %in% formations$Libellé),
     color = "red") +
   xlab("Nombre de candidats admis") +
-  ylab("Taux d'accès (100% = non sélectif)") +
+  scale_y_continuous(labels = ~ paste0(.x,"%"), name = "Taux d'accès (100% = non sélectif)") +
   theme_cpesr() +
   theme(legend.position = "none", 
         panel.grid.major.x = element_line(colour = "#D8D8D8"))
 ```
+
+```{r carte.formations.1}
+parcoursup %>% 
+  filter(Région.de.l.établissement == code.region) %>%
+  mutate(Taux.remplissage = Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis. / Capacité.de.l.établissement.par.formation ) %>%
+  ggplot(aes(y=Taux.remplissage,
+             x=Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP., 
+             size=Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.,
+             color=Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP.)) +
+  geom_point() +
+  scale_x_log10() +
+  geom_point(
+    data = . %>% filter(Filière.de.formation.détaillée %in% formations$Libellé),
+    color = "red") +
+  scale_y_continuous(labels = scales::percent, name = "Taux de remplissage (admis / places)") +
+  scale_x_continuous(labels = ~ paste0(.x,"%"), name = "Taux d'accès (100% = non sélectif)") +
+  theme_cpesr() +
+  theme(legend.position = "none", 
+        panel.grid.major.x = element_line(colour = "#D8D8D8"))
+```
+
 
 ```{r carte.formations.2}
 parcoursup %>% 

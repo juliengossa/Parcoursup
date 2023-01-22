@@ -20,9 +20,7 @@ enquêtés. Ces derniers occupent une position centrale en terme de
 taille, allant de 160 à 320, et son représentatif de tous les niveaux de
 performance, allant de 60% à 90% de taux de mention.
 
-![Positionnement des lycées de Nouvelle-Aquitaine en fonction de leur
-taille et taux de
-mention](cartographie_files/figure-gfm/carte.lycees-1.png)
+<img src="cartographie_files/figure-gfm/carte.lycees-1.png" title="Positionnement des lycées de Nouvelle-Aquitaine en fonction de leur taille et taux de mention" alt="Positionnement des lycées de Nouvelle-Aquitaine en fonction de leur taille et taux de mention" width="672" />
 
 <details>
 <summary>
@@ -461,19 +459,26 @@ Voir les données
 
     ## Warning: Transformation introduced infinite values in continuous x-axis
 
-    ## Warning: Removed 11 rows containing missing values (geom_point).
+    ## Warning: Removed 11 rows containing missing values (`geom_point()`).
 
-![](cartographie_files/figure-gfm/carte.formations-1.png)<!-- -->
+<img src="cartographie_files/figure-gfm/carte.formations-1.png" width="672" />
+
+    ## Scale for x is already present.
+    ## Adding another scale for x, which will replace the existing scale.
+
+    ## Warning: Removed 11 rows containing missing values (`geom_point()`).
+
+<img src="cartographie_files/figure-gfm/carte.formations.1-1.png" width="672" />
 
     ## Warning: Transformation introduced infinite values in continuous x-axis
 
     ## Warning: Transformation introduced infinite values in continuous y-axis
 
-![](cartographie_files/figure-gfm/carte.formations.2-1.png)<!-- -->
+<img src="cartographie_files/figure-gfm/carte.formations.2-1.png" width="672" />
 
-    ## Warning: Removed 11 rows containing missing values (geom_point).
+    ## Warning: Removed 11 rows containing missing values (`geom_point()`).
 
-![](cartographie_files/figure-gfm/carte.formations.3-1.png)<!-- -->
+<img src="cartographie_files/figure-gfm/carte.formations.3-1.png" width="672" />
 
 <details>
 <summary>

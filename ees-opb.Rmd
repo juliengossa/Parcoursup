@@ -1,12 +1,13 @@
 ---
 title: "Et si Parcoursup était compté"
 author:
-  - Pauline Boyer, pauline.boyer@cnrs.fr 
-  - Julien Gossa, gossa@unistra.fr 
-  - Université de Strasbourg 
-output: 
-  pdf_document: default
+- Pauline Boyer, pauline.boyer@cnrs.fr
+- Julien Gossa, gossa@unistra.fr
+- Université de Strasbourg
+output:
+  word_document: default
   github_document: default
+  pdf_document: default
 bibliography: 20220630-Parcoursup.bib
 ---
 
@@ -17,7 +18,9 @@ library(tidyverse)
 library(cowplot)
 options(dplyr.summarise.inform = FALSE)
 
-theme_set(theme_minimal() + theme(plot.title = element_text(hjust = 0.5)))
+theme_set(theme_minimal() + theme(plot.title = element_text(hjust = 0.5, size=rel(0.9))))
+
+knitr::opts_chunk$set(fig.asp=3/4, out.width = "100%", fig.retina = 2, fig.align = "center")
 ```
 
 ```{r wc, warning=FALSE, eval=FALSE}
@@ -26,7 +29,7 @@ wordcountaddin:::text_stats()
 
 
 
-```{r load, cache=TRUE}
+```{r load, cache=FALSE}
 source("psdata.R")
 ```
 
@@ -257,13 +260,13 @@ pe1 <- pe %>%
 
 pe2 <- pe %>% 
   group_by(Session, Série) %>%
-  summarise(np = sum(Bacheliers, na.rm = TRUE) - sum(Poursuivants, na.rm=TRUE)) %>%
+  summarise(np = (sum(Bacheliers, na.rm = TRUE) - sum(Poursuivants, na.rm=TRUE)) / 1000) %>%
   mutate(Série=fct_rev(Série)) %>%
   ggplot(aes(x=Session,y=np,group=Série, fill=Série, color=Série)) +
   geom_area(alpha=0.6) +
   expand_limits(y=c(0,1)) +
   scale_x_discrete(breaks=seq(2010,2020,by=2)) +
-  ylab("Nombre de non poursuivants") +
+  ylab("Nombre de non poursuivants (milliers)") +
   ggtitle("Non-poursuites d'étude")
 
 legend <- get_legend(
