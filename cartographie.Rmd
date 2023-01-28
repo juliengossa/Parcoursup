@@ -148,7 +148,8 @@ parcoursup %>%
 ```{r carte.formations.1}
 parcoursup %>% 
   filter(Région.de.l.établissement == code.region) %>%
-  mutate(Taux.remplissage = Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis. / Capacité.de.l.établissement.par.formation ) %>%
+  mutate(Taux.remplissage = Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis. / Capacité.de.l.établissement.par.formation ) %>% 
+  filter(Filière.de.formation.détaillée %in% formations$Libellé) %>% View()
   ggplot(aes(y=Taux.remplissage,
              x=Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP., 
              size=Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.,

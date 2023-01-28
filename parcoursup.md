@@ -11,13 +11,7 @@ Untitled
 
 ![](parcoursup_files/figure-gfm/info.total-1.png)<!-- -->
 
-    ## `geom_line()`: Each group consists of only one observation.
-    ## ℹ Do you need to adjust the group aesthetic?
-
 ![](parcoursup_files/figure-gfm/info.fil-1.png)<!-- -->
-
-    ## `geom_line()`: Each group consists of only one observation.
-    ## ℹ Do you need to adjust the group aesthetic?
 
 ![](parcoursup_files/figure-gfm/info.fil.capad-1.png)<!-- -->
 
@@ -26,9 +20,9 @@ Untitled
 
 ![](parcoursup_files/figure-gfm/info.fil.ad-1.png)<!-- -->
 
-    ## Warning: Removed 6 rows containing missing values (`geom_line()`).
+    ## Warning: Removed 7 rows containing missing values (`geom_line()`).
 
-    ## Warning: Removed 6 rows containing missing values (`geom_point()`).
+    ## Warning: Removed 7 rows containing missing values (`geom_point()`).
 
 ![](parcoursup_files/figure-gfm/info.L-1.png)<!-- -->
 
