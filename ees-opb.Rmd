@@ -5,8 +5,8 @@ author:
 - Julien Gossa, gossa@unistra.fr
 - Université de Strasbourg
 output:
-  word_document: default
   github_document: default
+  word_document: default
   pdf_document: default
 bibliography: 20220630-Parcoursup.bib
 ---
@@ -222,47 +222,28 @@ empêchée par cette modification.
 
 ```{r odf, fig.cap="Formations et admissions par taille de formation"}
 session.palette <- RColorBrewer::brewer.pal(10,"RdBu")[c(2,3,6:10)]
-odf1 <- ps %>% 
+ps %>% 
   mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
   filter(!is.na(taille)) %>%
   group_by(Session, Filière, taille) %>% 
-  summarise(nb.formations = n()) %>%
+  summarise(
+    `Nombre de formations` = n(),
+    `Nombre d'admissions` = sum(Admissions)) %>%
+  pivot_longer(c(`Nombre de formations`,`Nombre d'admissions`), names_to = "Indicateur", values_to = "valeur") %>%
+  mutate(serie = paste(Indicateur,"/",Filière)) %>%
   mutate(Session = as.factor(Session)) %>%
-  ggplot(aes(x=taille,y=nb.formations,fill=Session)) +
+  ggplot(aes(x=taille,y=valeur,fill=Session)) +
   geom_col(position="dodge") +
   scale_fill_manual(values=session.palette) +
-  ylab("Nombre de formations") +
-  facet_wrap(.~Filière, scales = "free_y") +
+  ylab("") +
+  facet_wrap(.~serie, scales = "free_y", ncol = 2) +
   scale_x_discrete(labels=c("<35","<70","<140","<280",">=280")) +
-  ggtitle("Nombre de formations par taille")
-
-
-odf2 <- ps %>% 
-  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
-  filter(!is.na(taille)) %>%
-  group_by(Session, Filière, taille) %>% 
-  summarise(nb.formations = sum(Admissions)) %>%
-  mutate(Session = as.factor(Session)) %>%
-  ggplot(aes(x=taille,y=nb.formations,fill=Session)) +
-  geom_col(position="dodge") +
-  scale_fill_manual(values=session.palette) +
-  ylab("Nombre d'admissions") +
-  facet_wrap(.~Filière) +
-  scale_x_discrete(labels=c("<35","<70","<140","<280",">=280")) +
-  ggtitle("Nombre d'admissions par taille des formations")
-
-
-legend <- get_legend(
-  odf1 + theme(legend.position = "bottom", legend.box.margin = margin(0, 0, 0, 12)) +
-    guides(fill=guide_legend(nrow=1,byrow=TRUE))
-)
-
-plot_grid(ncol=1, rel_heights = c(1,0.1),
-          plot_grid(ncol = 1, 
-                    odf1 + theme(legend.position = "none", panel.grid.major.x = element_blank()), 
-                    odf2 + theme(legend.position = "none", panel.grid.major.x = element_blank())),
-          legend)
+  scale_y_continuous(labels = ~ paste(.x/1e3,"k")) +
+  theme(legend.position = "bottom", panel.grid.major.x = element_blank()) +
+  guides(fill = guide_legend(nrow = 1, byrow = TRUE))
 ```
+
+
 
 Le nombre de formations proposées dans Parcoursup est un argument politique, supportant 
 la volonté d'en faire la « place de marché unique » pour les formations post-bac. 
@@ -292,47 +273,27 @@ nationaux équivalents partout sur le territoire.
 ## Offre de formation : de la `pression` au `taux d'accès`
 
 ```{r sel, fig.cap="Sélectivité des formations de Parcoursup"}
-sel1 <- ps %>%
+ps %>%
   mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
   filter(Session %in% c(2020,2021,2022)) %>%
   filter(!is.na(taux.accès)) %>%
   mutate(tda = cut(taux.accès, c(0,0.1,0.3,0.5,0.7,0.90,1,Inf),right=FALSE)) %>%
   group_by(Session=as.character(Session),Filière,tda) %>%
-  summarise(nformations = n()) %>%
-  ggplot(aes(x=tda,y=nformations,fill=Session)) +
+  summarise(
+    `Nombre de formations` = n(),
+    `Nombre d'admissions` = sum(Admissions)) %>%
+  pivot_longer(c(`Nombre de formations`,`Nombre d'admissions`), names_to = "Indicateur", values_to = "valeur") %>%
+  mutate(serie = paste(Indicateur,"/",Filière)) %>%
+  ggplot(aes(x=tda,y=valeur,fill=Session)) +
   geom_col(position = "dodge") +
   ylab("Nombre de formations") +
-  xlab("Taux d'accès") +
-  facet_grid(.~Filière) +
+  xlab("") +
+  facet_wrap(.~serie, ncol=2, scales = "free_y") +
   scale_x_discrete(labels=c("<10%","<30%","<50%","<70%","<90%","<100%","100%")) +
   scale_fill_manual(values = session.palette[5:7]) +
-  ggtitle("Nombre de formations par taux d'accès")
-
-sel2 <- ps %>%
-  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
-  filter(Session %in% c(2020,2021,2022)) %>%
-  filter(!is.na(taux.accès)) %>%
-  mutate(tda = cut(taux.accès, c(0,0.1,0.3,0.5,0.7,0.90,1,Inf),right=FALSE)) %>%
-  group_by(Session=as.character(Session),Filière,tda) %>%
-  summarise(nadmissions = sum(Admissions,na.rm=TRUE)) %>%
-  ggplot(aes(x=tda,y=nadmissions,fill=Session)) +
-  geom_col(position = "dodge") +
-  ylab("Nombre d'admissions") +
-  xlab("Taux d'accès") +
-  facet_grid(.~Filière) +
-  scale_x_discrete(labels=c("<10%","<30%","<50%","<70%","<90%","<100%","100%")) +
-  scale_fill_manual(values = session.palette[5:7]) +
-  ggtitle("Nombre d'admissions par taux d'accès")
-
-legend <- get_legend(
-  sel1 + theme(legend.position = "bottom", legend.box.margin = margin(0, 0, 0, 12))
-)
-
-plot_grid(ncol=1, rel_heights = c(1,0.1),
-          plot_grid(ncol = 1, 
-                    sel1 + theme(legend.position = "none", panel.grid.major.x = element_blank()), 
-                    sel2 + theme(legend.position = "none", panel.grid.major.x = element_blank())),
-          legend)
+  scale_y_continuous(labels = ~ paste(.x/1e3,"k")) +
+  theme(legend.position = "bottom", panel.grid.major.x = element_blank()) +
+  guides(fill = guide_legend(nrow = 1, byrow = TRUE))
 ```
 
 La pression sur une formation peut se calculer comme le rapport entre le nombre
@@ -378,7 +339,8 @@ places proposées par formations.
 ### `Places non pourvues`, `Places vacantes` et `Taux de remplissage`
 
 ```{r pnp, fig.cap="Taux de remplissage des formations post-bac"}
-pnp <- ps %>%
+pnp <- rbind(
+  ps %>%
     mutate(Filière = case_when(
     Filière.de.formation.très.agrégée == "Licence" ~ "Licence",
     Filière.de.formation.très.agrégée == "BTS" ~ "BTS",
@@ -386,35 +348,41 @@ pnp <- ps %>%
     # Filière.de.formation.très.agrégée == "CPGE" ~ "CPGE",
     TRUE ~ "Autres"
     )) %>%
-  group_by(Session, Filière)
+  group_by(Session, Filière) %>%
+  summarize(
+    pnp = sum(Capacité-Admissions,na.rm = TRUE),
+    tdr.global = sum(Admissions,na.rm=TRUE) / sum(Capacité,na.rm = TRUE),
+    tdr.mean = mean(Admissions / Capacité,na.rm = TRUE)),
+  ps %>%
+    mutate(Filière = "Total") %>%
+  group_by(Session, Filière) %>%
+  summarize(
+    pnp = sum(Capacité-Admissions,na.rm = TRUE),
+    tdr.global = sum(Admissions,na.rm=TRUE) / sum(Capacité,na.rm = TRUE),
+    tdr.mean = mean(Admissions / Capacité,na.rm = TRUE))
+)
 
 pnp1 <- pnp %>%
-  summarize(pnp = sum(Capacité-Admissions,na.rm = TRUE)/1000) %>%
   ggplot(aes(x=Session,y=pnp, group=Filière, color=Filière)) +
   geom_line() +
   ylab("Places non pourvues (milliers)") +
+  scale_y_continuous(labels = ~ paste(.x/1e3,"k")) +
   scale_color_brewer(palette = "Dark2") +
-  expand_limits(y=0) +
-  ggtitle("Places non pourvues")
+  expand_limits(y=0) 
 
 pnp2 <- pnp %>%
-  summarize(tdr = sum(Admissions,na.rm=TRUE) / sum(Capacité,na.rm = TRUE)) %>%
-  ggplot(aes(x=Session,y=tdr, group=Filière, color=Filière)) +
+  ggplot(aes(x=Session,y=tdr.global, group=Filière, color=Filière)) +
   geom_line() +
-  scale_y_continuous(labels = scales::percent, name = "Taux de remplissage") +
+  scale_y_continuous(labels = scales::percent, name = "Taux de remplissage global") +
   scale_color_brewer(palette = "Dark2") +
-  expand_limits(y=c(0,1)) +
-  ggtitle("Taux de remplissage global")
+  expand_limits(y=c(0,1)) 
 
 pnp3 <- pnp %>%
-  summarize(tdr = mean(Admissions / Capacité,na.rm = TRUE)) %>%
-  ggplot(aes(x=Session,y=tdr, group=Filière, color=Filière)) +
+  ggplot(aes(x=Session,y=tdr.mean, group=Filière, color=Filière)) +
   geom_line() +
-  scale_y_continuous(labels = scales::percent, name = "Taux de remplissage") +
+  scale_y_continuous(labels = scales::percent, name = "Taux de remplissage moyen") +
   scale_color_brewer(palette = "Dark2") +
-  expand_limits(y=c(0,1)) +
-  ggtitle("Taux de rempl. moyen par filière")
-  
+  expand_limits(y=c(0,1)) 
 
 legend <- get_legend(
   pnp1 + theme(legend.position = "bottom", legend.box.margin = margin(0, 0, 0, 12))
@@ -483,13 +451,13 @@ pe1 <- pe %>%
 
 pe2 <- pe %>% 
   group_by(Session, Bac) %>%
-  summarise(np = (sum(Bacheliers, na.rm = TRUE) - sum(Poursuivants, na.rm=TRUE)) / 1000) %>%
+  summarise(np = (sum(Bacheliers, na.rm = TRUE) - sum(Poursuivants, na.rm=TRUE))) %>%
   mutate(Bac=fct_rev(Bac)) %>%
   ggplot(aes(x=Session,y=np,group=Bac, fill=Bac, color=Bac)) +
   geom_area(alpha=0.6) +
   expand_limits(y=c(0,1)) +
   scale_x_continuous(breaks=seq(2010,2020,by=2)) +
-  ylab("Nombre de non poursuivants (milliers)") +
+  scale_y_continuous(labels = ~paste(.x/1e3,"k"), name="Nombre de non-poursuites (milliers)") +
   scale_color_brewer(palette = "Accent") +
   scale_fill_brewer(palette = "Accent") +
   ggtitle("Non-poursuites d'étude")
