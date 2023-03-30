@@ -1,0 +1,445 @@
+---
+title: "Note loi ORE"
+author: "Julien Gossa"
+date: "`r Sys.Date()`"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+options(dplyr.summarise.inform = FALSE)
+knitr::opts_chunk$set(fig.asp = 9/16, fig.retina = 2)
+
+library(tidyverse)
+library(ggcpesrthemes)
+library(kpiESR)
+theme_set(theme_cpesr())
+theme_cpesr_setup(authors = "Julien Gossa", source = "https://github.com/cpesr/RFC/")
+
+source("psdata.R")
+```
+
+Cette note utilise les données ouvertes pour tenter d'éclaircir quelques questions 
+liées à la mise en œuvre de la loi ORE.
+
+
+## Question 1 : places
+
+__Quel est votre positionnement sur les créations de places portées par la loi ORE ? Estimez-vous qu’elles ont été adaptées aux évolutions démographiques et aux variations selon les filières de l’enseignement supérieur ? Quel est votre point de vue sur la méthode de définition du nombre de création de places par établissement ?__ 
+
+### Capacité d'accueil et création de places
+
+```{r places}
+ps %>%
+  group_by(Session,Filière.de.formation.très.agrégée) %>%
+  summarise(
+    Capacité = sum(Capacité, na.rm=TRUE),
+    Admissions = sum(Admissions, na.rm=TRUE)) %>%
+  pivot_longer(c(Capacité,Admissions), names_to = "Indicateur", values_to = "Valeur") %>%
+  group_by(Filière.de.formation.très.agrégée,Indicateur) %>%
+  mutate(Différence = Valeur - lag(Valeur)) %>%
+  arrange(Filière.de.formation.très.agrégée,Indicateur,Session) %>% 
+  ggplot(aes(x=Session,y=Valeur,color=Indicateur)) + 
+  geom_line() + 
+  geom_vline(xintercept = 2018, size=0.1) +
+  facet_wrap(Filière.de.formation.très.agrégée~., scales = "free_y") +
+  ggtitle("Capacités d'accueil et admissions par fillières depuis 2016")
+```
+
+_Observation_ : Les capacités d'accueil, sur lesquelles agissent la « création de places », doivent être prises avec 
+énormément de précaution. D'abord, créer des places n’aboutit pas forcément à plus d'admissions (cf. BTS, IUT et CPGE). Ensuite, les filières sans tension, notamment Licences, peuvent très bien déclarer des capacités d'accueil très surestimées afin de fluidifier leurs admissions.
+
+### Capacité d'accueil et admissions en Licences
+
+40 filières de Licences avec le plus d'admissions en 2022 :
+
+```{r places.L.top, results='asis'}
+Filières.L <- ps %>%
+  filter(Session == 2021, Filière.de.formation.très.agrégée == "Licence") %>%
+  group_by(Filière.de.formation,Filière.de.formation.détaillée) %>%
+  summarise(Admissions = sum(Admissions, na.rm=TRUE)) %>%
+  arrange(desc(Admissions)) %>%
+  select(Filière.de.formation,Filière.de.formation.détaillée,Admissions) %>%
+  head(40)
+
+Filières.L %>% spoiler_table(trim = Inf)
+```
+
+
+```{r places.L.top.plot, fig.width=10, fig.height=15, fig.asp=NULL}
+ps %>%
+  filter(Session >= 2018) %>%
+  filter(Filière.de.formation.détaillée %in% Filières.L$Filière.de.formation.détaillée) %>%
+  group_by(Session,Filière = Filière.de.formation.détaillée) %>%
+  summarise(
+    Capacité = sum(Capacité, na.rm=TRUE),
+    Admissions = sum(Admissions, na.rm=TRUE)) %>%
+  pivot_longer(c(Capacité,Admissions), names_to = "Indicateur", values_to = "Valeur") %>%
+  group_by(Filière,Indicateur) %>%
+  mutate(Différence = Valeur - lag(Valeur)) %>%
+  arrange(Filière,Indicateur,Session) %>% 
+  ggplot(aes(x=Session,y=Valeur,color=Indicateur)) + 
+  geom_line() + 
+  geom_vline(xintercept = 2018, size=0.1) +
+  facet_wrap(Filière~., scales = "free_y", labeller = labeller(Filière = label_wrap_gen(30)), ncol=4) +
+  ggtitle("Capacités d'accueil et admissions de fillières de Licence depuis 2018")
+```
+
+_Observation_ : Le profil des capacités d'accueil et des admissions est très différent d'une filière à l'autre de Licence. On peut notamment remarquer que Psychologie et STAPS, les deux principales filières en tension, évoluent de façon tout à fait différente : alors que capacités et admissions stagnent puis baissent en Psychologie, elles augmentent puis stagnent en STAPS. 
+
+Cela peut correspondre à un stratégie de régulation du nombre d'étudiants dans la première, et une stratégie de satisfaction contrôlée des vœux des candidats dans la seconde. D'un autre côté, l'exemple de l'informatique montre que les besoins de l'emploi peuvent être ignorés dans la définition des capacités d'accueil (comme dans l'allocation des moyens).
+
+On peut donc regretter l'absence de stratégie claire pour la définition des capacités d'accueil, sinon au moins de critères d'arbitrage. Au mieux, cette définition des capacités d'accueil semble suivre des logiques différentes et non énoncées, au pire est dépourvu de logique. 
+
+
+### Création de places et taux d'accès (sélectivité/pression)
+
+
+```{r places.vs.tauxdacces}
+ps %>%
+  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","BTS","CPGE"),
+                          as.character(Filière.de.formation.très.agrégée), "Autres")) %>%
+  #filter(Filière != "Autres") %>%
+  filter(Session %in% c(2020,2022)) %>%
+  arrange(Établissement,etablissement_id_paysage,Filière,Filière.de.formation.détaillée,Session) %>% 
+  group_by(Établissement,etablissement_id_paysage,Filière,Filière.de.formation.détaillée) %>%
+  filter(n() == 2) %>% 
+  summarise(
+    Taux.accès.moyen = mean(taux.accès, na.rm=TRUE),
+    Diff.admissions = last(Admissions) - first(Admissions)) %>% 
+  ggplot(aes(x=Taux.accès.moyen,y=Diff.admissions)) + 
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_wrap(Filière~., scales = "free_y") +
+  scale_x_continuous(labels = scales::percent, name ="Taux d'accès moyen") +
+  ylab("Différence entre les admissions de 2020 et 2022") +
+  ggtitle("Taux d'accès et évolution des admissions, pour chaque formation Parcoursup")
+```
+
+_Observation_ : L'évolution du nombre d'admissions, pour chaque formation proposée dans Parcoursup, en fonction des taux d'accès (100% = filière non sélective), ne permet d'observer aucune stratégie globale pour ouvrir des places dans les formations les plus demandées : il existe tout autant de filières en tension qui n'ouvrent pas de places, que de filières sans tension qui en ouvrent. 
+
+_Attention_ : le suivi individuel des formations sur une aussi longue période est difficile, et ces données sont donc partielles. La période 2020-2022 constitue un bon échantillon, le taux d'accès étant calculé solidement depuis 2020 seulement, mais toutes les périodes depuis 2018 montrent le même résultat.
+
+
+###  Création de places et taux d'accès (sélectivité/pression) en Licence
+
+```{r places.vs.tauxdacces.L}
+ps %>%
+  filter(Filière.de.formation.très.agrégée == "Licence") %>%
+  group_by(Session,Filière.de.formation.détaillée) %>%
+  summarise(
+    Taux.accès.moyen = mean(taux.accès, na.rm=TRUE),
+    Admissions = sum(Admissions, na.rm=TRUE)) %>% 
+  filter(Session %in% c(2020,2022)) %>% 
+  arrange(Filière.de.formation.détaillée, Session) %>%
+  group_by(Filière.de.formation.détaillée) %>%
+  filter(n() == 2) %>% 
+  summarise(
+    Taux.accès.moyen = mean(Taux.accès.moyen, na.rm=TRUE),
+    Diff.admissions = last(Admissions) - first(Admissions)) %>% 
+  ggplot(aes(x=Taux.accès.moyen,y=Diff.admissions)) + 
+  geom_point() + 
+  ggrepel::geom_text_repel(aes(label=Filière.de.formation.détaillée)) +
+  geom_smooth(method = "lm") +
+  #facet_wrap(Filière~., scales = "free_y") +
+  scale_x_continuous(labels = scales::percent, name ="Taux d'accès moyen") +
+  ylab("Différence entre les admissions de 2020 et 2022") +
+  ggtitle("Taux d'accès et évolution des admissions, pour chaque discipline de Licence") +
+  theme(legend.position = "None")
+```
+
+
+_Observation_ : L'évolution du nombre global d'admissions en fonction des taux d'admission moyens (100% = filière non sélective), par discipline, ne montre pas non plus de stratégie globale pour ouvrir des places dans les formations les plus demandées. 
+
+_Attention_ : les filières étant agrégées, elles peuvent recouvrir -pour la même discipline- des formations assez différentes, allant de la grosse Licence non sélective à la petite formation spécialisée très sélective. La ligne de régression peut laisser penser à effet fragile, mais qui ne tient qu'aux deux exceptions LEA et LLCER.
+
+
+
+### Création de places en Licence dans les universités et PérimEx
+
+```{r places.etab, fig.asp=4/3} 
+kpiESR::esr %>%
+  filter(Rentrée %in% c(2018,2021)) %>%
+  filter(Groupe == "Universités et assimilés") %>%
+  group_by(Etablissement) %>%
+  mutate(Etudiants = kpi.ETU.S.cycle1_L) %>%
+  summarize(Evolution.Etudiants = last(Etudiants) / first(Etudiants) - 1) %>%
+  filter(Evolution.Etudiants < 2) %>%
+  left_join(kpiESR::esr.etab) %>%
+  mutate(PerimEx = ifelse(PerimEx=="","Aucun",PerimEx)) %>%
+  ggplot(aes(x=Evolution.Etudiants,y=reorder(Etablissement,Evolution.Etudiants),fill=PerimEx)) +
+  geom_col(alpha=0.7) +
+  scale_x_continuous(labels=scales::percent, name = "Evolution du nombre d'étudiants entre 2018 et 2021") +
+  ylab("") +
+  ggtitle("Evolution des effectifs en Licence depuis la loi ORE par université") +
+  theme(plot.title = element_text(hjust = 1))
+```
+
+_Observation_ : L'évolution du nombre de places dans les universités est très divers, certaines dépassant les +25% entre 2018 et 2021. Sur cette évolution, le Périmètre d'excellence ne semble jouer aucun rôle, en tous cas positif. La démographie territoriale joue sans doute bien plus fortement qu'une éventuelle attractivité des établissements dits "Excellents", ou que les politiques de mobilité étudiante. Ces politiques peuvent cependant jouer sur la qualité des étudiants admis, et la distance que doit parcourir un candidat en fonction de son dossier.
+
+Voir la note SIES « La mobilité géographique à l’entrée dans l’enseignement supérieur »
+
+https://www.enseignementsup-recherche.gouv.fr/fr/la-mobilite-geographique-l-entree-dans-l-enseignement-superieur-90056
+
+_Attention_ : le périmètre des inscriptions comptabilisées pour chaque établissement a pu changer sur la période observée, obligeant à beaucoup de prudence lorsqu'on considère un établissement indépendamment, sans que cela remette en cause la conclusion générale.
+
+## Question 2 : moyens
+
+__Considérez-vous que les financements découlant de la loi ORE ont été à la hauteur des objectifs ? Préciser le cas échéant les aspects sur lesquels les financements ont été les plus adaptés et ceux sur lesquels il vous semble exister des points d’amélioration au regard des enjeux.__
+
+### Evolution des subventions pour charge de service public (SCSP)
+
+```{r fin}
+kpiESR::esr %>%
+  filter(Etablissement %in% c("Ensemble","Universités et assimilés")) %>%
+  filter(Rentrée > 2012, Rentrée !=2016) %>%
+  mutate(Périmètre = recode(Etablissement,"Ensemble"="MESR")) %>%
+  ggplot(aes(x=Rentrée,y=kpi.FIN.S.SCSP,color=Périmètre)) +
+  geom_vline(xintercept = 2018) +
+  geom_line(linewidth = 1, alpha=0.6) +
+  geom_point(shape = 21, size = 2, stroke = 1, fill="white") + 
+  geom_smooth(method = "lm", se = FALSE, linewidth = 0.5) +
+  scale_x_continuous(breaks = scales::pretty_breaks()) +
+  scale_y_continuous(labels = ~ paste(.x/1e9,"Md€"), name="SCSP") +
+  ggtitle("Evolution des subventions pour charge de service public (SCSP)")
+```
+
+_Observation_ : Prises globalement, on n'observe aucune modification de la trajectoire des subventions pour charge de service public (SCSP) dans les périmètres universités et MESR, bien que les « moyens nouveaux » de la loi ORE y soit incorporés. Il ne s'agit donc vraisemblablement pas de moyens supplémentaires, sinon dans l'épaisseur du trait. 
+
+_Avertissement_ : en raison de données incomplète, l'année 2016 a été masquée. 
+
+### SCSP par étudiant
+
+```{r fin.etu}
+kpiESR::esr %>%
+  filter(Etablissement %in% c("Ensemble","Universités et assimilés")) %>%
+  filter(Rentrée > 2012, Rentrée !=2016) %>%
+  mutate(Périmètre = recode(Etablissement,"Ensemble"="MESR")) %>%
+  ggplot(aes(x=Rentrée,y=kpi.FIN.S.SCSP/(kpi.ETU.S.cycle1_L+kpi.ETU.S.cycle2_M),color=Périmètre)) +
+  geom_vline(xintercept = 2018) +
+  geom_line(linewidth = 1, alpha=0.6) +
+  geom_point(shape = 21, size = 2, stroke = 1, fill="white") + 
+  #geom_smooth(se = FALSE, linewidth = 0.5) +
+  scale_x_continuous(breaks = scales::pretty_breaks()) +
+  scale_y_continuous(labels = ~ paste(.x/1e3,"k€"), name="SCSP par étudiant (L et M)") +
+  ggtitle("Evolution des subventions pour charge de service public (SCSP)")
+```
+
+_Observation_ : Si on rapporte la SCSP au nombre d'étudiants inscrits en L et M, on constate une baisse significative, particulièrement dans les universités, que la loi ORE n'aura pas endiguée, sinon aura accélérée. Il est donc tout à fait impossible de parler de moyens supplémentaire pour l'ouverture de nouvelles places de formations, puisque ces moyens baissent.
+
+### SCSP par université
+
+```{r fin.etab}
+kpiESR::esr %>%
+  filter(Groupe == "Universités et assimilés") %>%
+  filter(Rentrée %in% c(2018,2021)) %>%
+  #filter(kpi %in% c("kpi.FIN.S.SCSP","kpi.ETU.S.Cycle1_L")) %>%
+  group_by(Etablissement) %>%
+  summarise(
+    diff.SCSP = last(kpi.FIN.S.SCSP) / first(kpi.FIN.S.SCSP) - 1,
+    diff.L = last(kpi.ETU.S.cycle1_L) / first(kpi.ETU.S.cycle1_L) - 1
+    ) %>%
+  left_join(kpiESR::esr.etab) %>%
+  mutate(PerimEx = ifelse(PerimEx=="","Aucun",PerimEx)) %>%
+  filter(Comparable) %>%
+  filter(diff.SCSP < 0.1, diff.SCSP > -0.03) %>%
+  filter(diff.L < 0.3) %>%
+  ggplot(aes(x=diff.L,y=diff.SCSP)) +
+  geom_point(aes(color=PerimEx)) + 
+  ggrepel::geom_text_repel(aes(label=Sigle), color="grey50", size=3) +
+  geom_smooth(method = "lm") +
+  scale_x_continuous(labels = ~ paste("+",scales::percent(.x)), name="Evolution des étudiants en L") +
+  scale_y_continuous(labels = ~ paste("+",scales::percent(.x)), name="Evolution de la SCSP") +
+  ggtitle("Evolution des SCSP et effectifs étudiants en Licence, entre 2018 et 2021")
+```
+
+_Observation_ : Depuis la loi ORE et pour les universités, il est difficile d'identifier un lien entre l'évolution  des SCSP et l'évolution des effectifs étudiants en Licence : les établissements dont les effectifs étudiants baissent ont globalement reçu la même augmentation de moyens que ceux dont les effectifs étudiants augmentent ; pour la même augmentation des effectifs étudiants, on trouve très facilement, voire systématiquement, des augmentations de SCSP allant du simple au double.
+
+_Avertissement_ : Pour des raisons de visualisation, les universités de Nîmes et d'Artois, ainsi que l'UPHF ne sont pas sur le graphique, sans que cela change ses conclusions.
+
+
+### Effectifs enseignants par université
+
+```{r ens.etab}
+kpiESR::esr %>%
+  filter(Groupe == "Universités et assimilés") %>%
+  filter(Rentrée %in% c(2018,2020)) %>%
+  #filter(kpi %in% c("kpi.FIN.S.SCSP","kpi.ETU.S.Cycle1_L")) %>%
+  arrange(Rentrée) %>%
+  group_by(Etablissement) %>%
+  summarise(
+    diff.ens = last(kpi.ENS.S.titulaires) / first(kpi.ENS.S.titulaires) - 1,
+    diff.L = last(kpi.ETU.S.cycle1_L) / first(kpi.ETU.S.cycle1_L) - 1
+    ) %>%
+  left_join(kpiESR::esr.etab) %>%
+  mutate(PerimEx = ifelse(PerimEx=="","Aucun",PerimEx)) %>%
+  filter(Comparable) %>%
+  filter(diff.ens < 0.1) %>%
+  #filter(diff.L < 0.3) %>%
+  ggplot(aes(x=diff.L,y=diff.ens)) +
+  geom_point(aes(color=PerimEx)) + 
+  ggrepel::geom_text_repel(aes(label=Sigle), color="grey50", size=3) +
+  geom_smooth(method = "lm") +
+  scale_x_continuous(labels = ~ paste("+",scales::percent(.x)), name="Evolution des étudiants en L") +
+  scale_y_continuous(labels = ~ paste("+",scales::percent(.x)), name="Evolution des effectifs enseignants titulaires") +
+  ggtitle("Evolution des effectifs enseignants titulaires et étudiants en Licence\nentre 2018 et 2020 dans les universités")
+```
+_Observation_ : Depuis la loi ORE et pour les universités, il est difficile d'identifier un lien entre l'évolution  des effectifs enseignants titulaires et l'évolution des effectifs étudiants en Licence. Là encore, pour la même augmentation des effectifs étudiants, on pourra aussi bien trouver une hausse qu'une baisse des effectifs enseignants titulaires.
+
+```{r ens.etab.np}
+kpiESR::esr %>%
+  filter(Groupe == "Universités et assimilés") %>%
+  filter(Rentrée %in% c(2018,2020)) %>%
+  #filter(kpi %in% c("kpi.FIN.S.SCSP","kpi.ETU.S.Cycle1_L")) %>%
+  arrange(Rentrée) %>%
+  group_by(Etablissement) %>%
+  summarise(
+    diff.ens = last(kpi.ENS.P.effectif-kpi.ENS.S.titulaires) / first(kpi.ENS.P.effectif-kpi.ENS.S.titulaires) - 1,
+    diff.L = last(kpi.ETU.S.cycle1_L) / first(kpi.ETU.S.cycle1_L) - 1
+    ) %>%
+  left_join(kpiESR::esr.etab) %>%
+  mutate(PerimEx = ifelse(PerimEx=="","Aucun",PerimEx)) %>%
+  filter(Comparable) %>%
+  filter(diff.ens < 1) %>%
+  #filter(diff.L < 0.3) %>%
+  ggplot(aes(x=diff.L,y=diff.ens)) +
+  geom_point(aes(color=PerimEx)) + 
+  ggrepel::geom_text_repel(aes(label=Sigle), color="grey50", size=3) +
+  geom_smooth(method = "lm") +
+  scale_x_continuous(labels = ~ paste("+",scales::percent(.x)), name="Evolution des étudiants en L") +
+  scale_y_continuous(labels = ~ paste("+",scales::percent(.x)), name="Evolution des effectifs enseignants contractuels") +
+  ggtitle("Evolution des effectifs enseignants contractuels et étudiants en Licence\nentre 2018 et 2020 dans les universités")
+```
+
+_Observation_ : L'évolution des effectifs enseignants contractuels (doctorants, ATER, LRU et assimilé) montre une très faible corrélation avec l'augmentation des effectifs étudiants en Licence, sans que ce soit réelle significatif. Cela pourrait constituer un indice que les moyens de la loi ORE ont été donnés, pour assurer des missions pérenes, à des supports temporaires.
+
+### Taux d'encadrement pédagogogique
+
+```{r taux.encadrement}
+kpiESR::esr.pnl %>%
+  filter(Groupe == "Ensemble") %>%
+  filter(kpi %in% c("kpi.ENS.P.effectif","kpi.ETU.P.effectif","kpi.K.ensPetu")) %>%
+  mutate(kpi = factor(kpi, 
+                      levels = c("kpi.ENS.P.effectif","kpi.ETU.P.effectif","kpi.K.ensPetu"), 
+                      labels = c("Enseignants","Etudiants","Taux d'encadrement"))) %>%
+  filter(Rentrée > 2017, Rentrée < 2021) %>%
+  group_by(kpi) %>%
+  mutate(evol = valeur / first(valeur) * 100) %>%
+  left_join(kpiESR::esr.etab) %>%
+  ggplot(aes(x=Rentrée,y=evol,color=kpi)) +
+  geom_line(linewidth=1) +
+  geom_point(shape=21,size=2,stroke=1.5,fill="white") + 
+  expand_limits(y=c(90,110)) +
+  scale_x_continuous(breaks = seq(2010,2030)) +
+  scale_y_continuous(breaks = seq(90,110,5), name = "Evolution en valeur 100 pour 2018") +
+  scale_color_discrete(name = "Série") +
+  ggtitle("Effectifs enseignants et étudiants, et taux d'encadrement\nentre 2018 et 2020, périmètre MESR")
+```
+
+_Observations_ : Finalement, si on prend le plus de recul possible, en deux ans à peine depuis la loi ORE, les effectifs étudiants dans le périmètre MESR ont augmenté de ~8%, quand les effectifs enseignants titulaires et non titulaires n'augmentaient que de ~2%. Il en résulte une baisse des taux d'encadrement de ~7,5%. Sans prendre en compte les enseignants non titulaires, le constat est plus grave. Les chiffres (non encore consolidés) pour les années suivantes laissent craindre une aggravation. 
+
+### Conclusion sur les moyens
+
+Si de nombreuses annonces de « moyens nouveaux » ont accompagné la loi ORE et sa mise en oeuvre, nous devons constater que ces moyens sont indiscernables dans les indicateurs du système ESR, tant dans leurs montants que leurs effets. S'il parait indéfendable de parler de « moyens supplémentaires », peut-être peut-on parler de « moyens différents », n'augmentant pas les moyens des établissements à la hauteur de l'accroissement de leur besoin, mais modifiant le contrôle sur l'utilisation de ces moyens. 
+
+En effet, le « dialogue stratégique et de gestion » a abouti à des dotations participants de la SCSP, mais à l'usage contraint par le Ministère (i.e. recrutement de tant d'enseignants, de tels statuts, sur telles disciplines), affaiblissant l'autonomie des établissements sans leur permettre de répondre à leurs besoins.
+
+
+## Question 3 : Perception par les personnels
+
+__Présenter l’incidence des mesures ORE sur le personnel universitaire. Les différentes mesures portées par la loi ORE ont-elles été bien perçues par les différentes catégories de personnel ? Quels sont les points les plus difficiles ?__
+
+Il n'existe aucune données sur cette question à notre connaissance, le Ministère n'ayant mené aucune enquête auprès des personnels. Cependant, on peut s'intéresse aux travaux d'Alban Mizzi, qui mène une enquête sociologique sur les Comissions d'examen des voeux (CEV). Parmi ses observations, le fait que les CEV sont considérées comme des tâches chronophages et ingrates, ne permettant pas une étude efficace des dossiers, et qu'il est difficile de trouver des volontaires pour s'en charger.
+
+
+
+## Question 4 : « Oui Si » 
+
+__Quel est votre positionnement sur les dispositifs d’accompagnement à la réussite dans le cadre de la loi ORE, et en particulier sur le dispositif « Oui si » ? Leur effet sur la réussite en licence est-il selon vous positif ?__
+
+Le dispositif « Oui si » est connu pour son ambivalence : il peut tout aussi bien être utilisé comme un encouragement à accepter la proposition, avec un investissement supplémentaire permettant du soutien, que comme un découragement à l'accepter, avec un message auprès des candidats que leurs chances de réussite sont faibles.
+
+En l'absence de clarification de cette ambivalence, les familles ne pourront jamais s'approprier le dispositif, qui est donc très certainement voué à un échec au niveau global, ce qui n'empêchera jamais des succès localisés (cependant tout à fait obtenables sans les dispositions de la loi ORE - on ne l'a pas attendue pour faire du soutien en L1). 
+
+La note SIES « Réussite, assiduité en 1ère année de licence et passage en 2e année : impact de la loi ORE et de la crise sanitaire » montre que l'efficacité des dispositifs « oui si » n'est pas évidente : ~8% de taux de passage pour les allongement loi ORE (contre 47% à 58% hors « oui si »), par exemple. On ne peut exclure que ça aurait été pire sans le dispositif, comme on ne peut exclure que ça aurait été mieux. En absence de démarche systématique d'évaluation scientifique, notamment avec des groupes témoins -ce que les universités étaient parfaitement en mesure de faire-, l'efficacité de ces dispositifs ne pourra jamais être prouvée. 
+
+La note pointe surtout une augmentation générale de la réussite en Licence due « en partie des conséquences de la crise sanitaire qui se sont traduites par des aménagements des modalités de passation des cours et des examens ». En l'absence de démarche systématique d'évaluation, profondément impacté par la crise sanitaire, et prenant la suite d'une formation continuement modifiée (depuis 2018, et en plus de la sa réforme, pas une seule édition du Bac général ne s'est déroulée normalement), nous devons craindre que l'impact de la loi ORE sur la réussite étudiante ne pourra jamais être mesuré correctement.
+
+https://www.enseignementsup-recherche.gouv.fr/fr/reussite-assiduite-1ere-annee-licence-et-passage-2e-annee-impact-loi-ore-et-crise-sanitaire-89286
+
+### « orientation »
+
+Dans la conception de la loi ORE, l'orientation est considérée comme un facteur de réussite. Ce terme, très largement utilisé, n'a cependant pas été défini. Le seul cas concret présenté concerne les bacheliers professionnels, dont le taux d'échec à l'université est important.
+
+```{r bp}
+ps %>%
+  filter(Session >= 2018) %>%
+  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","BTS","CPGE","DUT_BUT","Ecole d'Ingénieur"),
+                        as.character(Filière.de.formation.très.agrégée), "Autres")) %>%
+
+  group_by(Session,Filière) %>%
+  summarise(
+    Général = sum(Effectif.des.admis.néo.bacheliers.généraux, na.rm=TRUE),
+    Technologique = sum(Effectif.des.admis.néo.bacheliers.technologiques, na.rm=TRUE),
+    Professionnel = sum(Effectif.des.admis.néo.bacheliers.professionnels, na.rm=TRUE) ) %>%
+  pivot_longer(c(Général,Technologique,Professionnel), names_to = "Bac", values_to = "Valeur") %>%
+  group_by(Filière,Bac) %>%
+  mutate(Différence = Valeur - lag(Valeur)) %>%
+  arrange(Filière,Bac,Session) %>% 
+  ggplot(aes(x=Session,y=Valeur,fill=Bac)) + 
+  geom_area(color="white", linewidth=0.2) + 
+  geom_vline(xintercept = 2018, size=0.1) +
+  facet_wrap(Filière~., scales = "free_y") +
+  scale_y_continuous(labels = ~ paste0(.x/1e3,"k"), name="Admissions (milliers)") +
+  ggtitle("Admissions par fillière du supérieur et filière du bac depuis 2018")
+```
+
+_Observation_ : On peut constater une éviction d'un flux de bacheliers technologiques et professionnels des Licences, une augmentation du flux de bacheliers technologiques en IUT et de bacheliers professionnels en BTS.
+Si cela peut contribuer à une augmentation des taux de réussite en Licence, il est impossible d'en conclure plus globalement à une amélioration de la réussite étudiante.
+
+En effet, évincer des candidats peut faire remonter les taux de réussite, sans pour autant augmenter le nombre de diplômés. Il s'agirait alors d'une amélioration en trompe l'œil.
+
+
+### « Orientation » en Licences
+
+```{r bp.L, fig.width=10, fig.height=15, fig.asp=NULL}
+ps %>%
+  filter(Session >= 2018) %>%
+  filter(Filière.de.formation.détaillée %in% Filières.L$Filière.de.formation.détaillée) %>%
+  group_by(Session,Filière = Filière.de.formation.détaillée) %>%
+  summarise(
+    Général = sum(Effectif.des.admis.néo.bacheliers.généraux, na.rm=TRUE),
+    Technologique = sum(Effectif.des.admis.néo.bacheliers.technologiques, na.rm=TRUE),
+    Professionnel = sum(Effectif.des.admis.néo.bacheliers.professionnels, na.rm=TRUE) ) %>%
+  pivot_longer(c(Général,Technologique,Professionnel), names_to = "Bac", values_to = "Valeur") %>%
+  group_by(Filière,Bac) %>%
+  mutate(val100 = Valeur / first(Valeur) * 100) %>%
+  arrange(Filière,Bac,Session) %>% 
+  ggplot(aes(x=Session,y=val100,color=Bac)) + 
+  geom_line() +
+  geom_vline(xintercept = 2018, size=0.1) +
+  facet_wrap(Filière~., labeller = labeller(Filière = label_wrap_gen(30)), ncol=4) +
+  scale_y_continuous(name="Admissions (valeur100)") +
+  ggtitle("Admissions par fillière du supérieur et filière du bac depuis 2018")
+```
+
+_Observation_ : On constate une éviction des bacheliers technlologiques et professionnels dans la plupart des filières de Licence. Pour évaluer les bénéfices de cette éviction au delà d'une amélioratio ndes atxu de réussite en trompe l'œil, il conviendrait de savoir si ces bacheliers évincés de l'Université trouvent une place ailleurs, où, et avec quelle « réussite » (enseignement supérieur public ou privé, emploi ou chômage).
+
+
+## Considérez-vous que le suivi et l’évaluation de la réforme ont été suffisants ? 
+
+En l'absence de critères d'évaluation clairs et définis à l'avance, toute évaluation de la loi ORE est finalement impossible.
+Cependant, on peut saluer le travail remarquable du CESP et de la Cour des comptes, qui répètent années après années exactement la même chose, sans que cela ait la moindre conséquence. Cela a même motivé la démission de la première CESP, malgré la très grande qualité de ses membres. 
+
+En conséquence, si un suivi de la meilleure qualité possible existe bien, il semble ignoré par le Ministère et s'avère donc inutile.
+
+Concernant l'évaluation, on peut s'étonner que le Ministère n'utilise pas directement la plateforme Parcoursup pour collecter des informations de satisfaction, et préfère recourir à un institut de sondage. Chaque année, enseignants comme candidats sont amenés à passer sur cette plateforme plusieurs dizaines d'heures, parfois plus d'une centaine. Les inviter en fin de procédure à participer à une enquête de satisfaction de quelques minutes directement sur la plateforme ne pose aucun problème technique ou humain, et permettrait de collecter des informations nombreuses et contextualisées. 
+
+## Quels sont les points d’attention que vous souhaitez soulever concernant le futur des dispositifs créés par la loi ORE ? 
+
+Un effort conséquent a été fourni par les formations pour publier des critères d'évaluation des dossiers de candidature. Cependant, on ne sait pas comment ces critères sont perçus, compris et utilisés par les candidats et leur entourage. On ne sait même pas si ces critères sont consultés, ni même s'ils sont finalement respectés par les formations ou stables dans le temps. Une enquête semble nécessaire sur ce point, afin d'affiner l'information apportée aux candidats, selon leurs besoins et non seulement en quantité. 
+
+
+
+
+
