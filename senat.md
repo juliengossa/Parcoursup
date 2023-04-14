@@ -1,7 +1,7 @@
 Note loi ORE
 ================
 Julien Gossa
-2023-03-30
+2023-04-14
 
 Cette note utilise les données ouvertes pour tenter d’éclaircir quelques
 questions liées à la mise en œuvre de la loi ORE.
@@ -120,6 +120,27 @@ montrent le même résultat.
 ### Création de places et taux d’accès (sélectivité/pression) en Licence
 
 <img src="senat_files/figure-gfm/places.vs.tauxdacces.L-1.png" width="672" />
+
+*Observation* : L’évolution du nombre global d’admissions en fonction
+des taux d’admission moyens (100% = filière non sélective), par
+discipline, ne montre pas non plus de stratégie globale pour ouvrir des
+places dans les formations les plus demandées.
+
+*Attention* : les filières étant agrégées, elles peuvent recouvrir -pour
+la même discipline- des formations assez différentes, allant de la
+grosse Licence non sélective à la petite formation spécialisée très
+sélective. La ligne de régression peut laisser penser à effet fragile,
+mais qui ne tient qu’aux deux exceptions LEA et LLCER.
+
+## IUT
+
+### Création de places et taux d’accès (sélectivité/pression) en IUT
+
+<img src="senat_files/figure-gfm/places.vs.tauxdacces.iut-1.png" width="960" />
+
+### Création de places et taux d’accès (sélectivité/pression) en IUT
+
+<img src="senat_files/figure-gfm/places.vs.tauxdacces.spé.iut-1.png" width="672" />
 
 *Observation* : L’évolution du nombre global d’admissions en fonction
 des taux d’admission moyens (100% = filière non sélective), par

@@ -154,6 +154,70 @@ _Observation_ : L'évolution du nombre global d'admissions en fonction des taux 
 _Attention_ : les filières étant agrégées, elles peuvent recouvrir -pour la même discipline- des formations assez différentes, allant de la grosse Licence non sélective à la petite formation spécialisée très sélective. La ligne de régression peut laisser penser à effet fragile, mais qui ne tient qu'aux deux exceptions LEA et LLCER.
 
 
+## IUT
+
+### Création de places et taux d'accès (sélectivité/pression) en IUT
+
+
+```{r places.vs.tauxdacces.iut, fig.width=10, fig.height=15}
+ps %>%
+  filter(Filière.de.formation.très.agrégée == "DUT_BUT") %>%
+  mutate(Filière = Filière.de.formation.détaillée) %>%
+  filter(Session %in% c(2021,2022)) %>%
+  arrange(Établissement,etablissement_id_paysage,Filière,Filière.de.formation.détaillée,Session) %>% 
+  group_by(Établissement,etablissement_id_paysage,Filière,Filière.de.formation.détaillée) %>%
+  filter(n() == 2) %>% 
+  summarise(
+    Taux.accès.moyen = mean(taux.accès, na.rm=TRUE),
+    Diff.admissions = last(Admissions) - first(Admissions)) %>% 
+  ggplot(aes(x=Taux.accès.moyen,y=Diff.admissions)) + 
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_wrap(Filière~., scales = "free_y", labeller = labeller(Filière = label_wrap_gen(30)), ncol=4) +
+  scale_x_continuous(labels = scales::percent, name ="Taux d'accès moyen") +
+  ylab("Différence entre les admissions de 2021 et 2022") +
+  ggtitle("Taux d'accès et évolution des admissions, pour chaque formation IUT<w")
+```
+
+
+###  Création de places et taux d'accès (sélectivité/pression) en IUT
+
+```{r places.vs.tauxdacces.spé.iut}
+ps %>%
+  filter(Filière.de.formation.très.agrégée == "DUT_BUT") %>%
+  filter(Session %in% c(2021,2022)) %>%
+  group_by(Session,Filière.de.formation.détaillée) %>%
+  summarise(
+    Taux.accès.moyen = mean(taux.accès, na.rm=TRUE),
+    Admissions = sum(Admissions, na.rm=TRUE)) %>% 
+  filter(Session %in% c(2021,2022)) %>% 
+  arrange(Filière.de.formation.détaillée, Session) %>%
+  group_by(Filière.de.formation.détaillée) %>%
+  filter(n() == 2) %>% 
+  summarise(
+    Taux.accès.moyen = mean(Taux.accès.moyen, na.rm=TRUE),
+    Diff.admissions = last(Admissions) - first(Admissions)) %>% 
+  ggplot(aes(x=Taux.accès.moyen,y=Diff.admissions)) + 
+  geom_point() + 
+  ggrepel::geom_text_repel(aes(label=Filière.de.formation.détaillée)) +
+  geom_smooth(method = "lm") +
+  #facet_wrap(Filière~., scales = "free_y") +
+  scale_x_continuous(labels = scales::percent, name ="Taux d'accès moyen") +
+  ylab("Différence entre les admissions de 2021 et 2022") +
+  ggtitle("Taux d'accès et évolution des admissions, pour chaque discipline de Licence") +
+  theme(legend.position = "None")
+```
+
+
+_Observation_ : L'évolution du nombre global d'admissions en fonction des taux d'admission moyens (100% = filière non sélective), par discipline, ne montre pas non plus de stratégie globale pour ouvrir des places dans les formations les plus demandées. 
+
+_Attention_ : les filières étant agrégées, elles peuvent recouvrir -pour la même discipline- des formations assez différentes, allant de la grosse Licence non sélective à la petite formation spécialisée très sélective. La ligne de régression peut laisser penser à effet fragile, mais qui ne tient qu'aux deux exceptions LEA et LLCER.
+
+
+
+
+
+
 
 ### Création de places en Licence dans les universités et PérimEx
 
