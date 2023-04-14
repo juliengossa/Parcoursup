@@ -199,11 +199,11 @@ ps %>%
     Diff.admissions = last(Admissions) - first(Admissions)) %>% 
   ggplot(aes(x=Taux.accès.moyen,y=Diff.admissions)) + 
   geom_point() + 
-  ggrepel::geom_text_repel(aes(label=Filière.de.formation.détaillée)) +
+  ggrepel::geom_text_repel(aes(label=str_wrap(Filière.de.formation.détaillée,30)), force = 100, min.segment.length = 1, box.padding = 0, size=3) +
   geom_smooth(method = "lm") +
   #facet_wrap(Filière~., scales = "free_y") +
   scale_x_continuous(labels = scales::percent, name ="Taux d'accès moyen") +
-  ylab("Différence entre les admissions de 2021 et 2022") +
+  ylab("Différence entre les admissions de 2021 et 2022")
   ggtitle("Taux d'accès et évolution des admissions, pour chaque discipline de Licence") +
   theme(legend.position = "None")
 ```

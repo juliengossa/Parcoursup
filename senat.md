@@ -142,6 +142,8 @@ mais qui ne tient qu’aux deux exceptions LEA et LLCER.
 
 <img src="senat_files/figure-gfm/places.vs.tauxdacces.spé.iut-1.png" width="672" />
 
+    ## NULL
+
 *Observation* : L’évolution du nombre global d’admissions en fonction
 des taux d’admission moyens (100% = filière non sélective), par
 discipline, ne montre pas non plus de stratégie globale pour ouvrir des
