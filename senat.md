@@ -1,7 +1,7 @@
 Note loi ORE
 ================
 Julien Gossa
-2023-04-14
+2023-04-17
 
 Cette note utilise les données ouvertes pour tenter d’éclaircir quelques
 questions liées à la mise en œuvre de la loi ORE.
@@ -17,6 +17,8 @@ nombre de création de places par établissement ?**
 ### Capacité d’accueil et création de places
 
 <img src="senat_files/figure-gfm/places-1.png" width="672" />
+
+<img src="senat_files/figure-gfm/places.print-1.png" width="672" />
 
 *Observation* : Les capacités d’accueil, sur lesquelles agissent la «
 création de places », doivent être prises avec énormément de précaution.
@@ -100,6 +102,8 @@ des capacités d’accueil, sinon au moins de critères d’arbitrage. Au
 mieux, cette définition des capacités d’accueil semble suivre des
 logiques différentes et non énoncées, au pire est dépourvu de logique.
 
+<img src="senat_files/figure-gfm/places.L.top.plot.print-1.png" width="672" />
+
 ### Création de places et taux d’accès (sélectivité/pression)
 
 <img src="senat_files/figure-gfm/places.vs.tauxdacces-1.png" width="672" />
@@ -154,6 +158,10 @@ la même discipline- des formations assez différentes, allant de la
 grosse Licence non sélective à la petite formation spécialisée très
 sélective. La ligne de régression peut laisser penser à effet fragile,
 mais qui ne tient qu’aux deux exceptions LEA et LLCER.
+
+### Print
+
+<img src="senat_files/figure-gfm/places.vs.tauxdacces.print-1.png" width="960" />
 
 ### Création de places en Licence dans les universités et PérimEx
 
