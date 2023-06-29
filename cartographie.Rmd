@@ -125,6 +125,19 @@ parcoursup %>%
 
 ### Cartes
 
+```{r carte.formations.0, fig.asp=9/16}
+parcoursup %>% 
+  filter(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis. > 9) %>%
+  ggplot(aes(x=Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.,
+             y=Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP.)) +
+  geom_point(size=0.2) +
+  scale_x_log10() +
+  xlab("Nombre de candidats admis") +
+  scale_y_continuous(labels = ~ paste0(.x,"%"), name = "Taux d'accès (100% = non sélectif)") +
+  theme_cpesr() +
+  theme(legend.position = "none", 
+        panel.grid.major.x = element_line(colour = "#D8D8D8"))
+```
 
 ```{r carte.formations}
 parcoursup %>% 
@@ -149,7 +162,7 @@ parcoursup %>%
 parcoursup %>% 
   filter(Région.de.l.établissement == code.region) %>%
   mutate(Taux.remplissage = Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis. / Capacité.de.l.établissement.par.formation ) %>% 
-  filter(Filière.de.formation.détaillée %in% formations$Libellé) %>% View()
+  filter(Filière.de.formation.détaillée %in% formations$Libellé) %>% 
   ggplot(aes(y=Taux.remplissage,
              x=Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP., 
              size=Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.,

@@ -197,6 +197,25 @@ _Observation_ : L'évolution du nombre global d'admissions en fonction des taux 
 
 _Attention_ : les filières étant agrégées, elles peuvent recouvrir -pour la même discipline- des formations assez différentes, allant de la grosse Licence non sélective à la petite formation spécialisée très sélective. La ligne de régression peut laisser penser à effet fragile, mais qui ne tient qu'aux deux exceptions LEA et LLCER.
 
+### Petites Licences
+
+```{r petites.L}
+ps %>%
+  filter(Filière.de.formation.très.agrégée == "Licence") %>%
+  mutate(Taille = cut(Admissions,c(-Inf,15,35,70,Inf))) %>%
+  group_by(Session, Taille) %>%
+  summarise(
+    Nb.formations = n(),
+    Nb.admissions = sum(Admissions),
+    taux.accès = weighted.mean(taux.accès,Admissions)
+    ) %>% View()
+  ggplot(aes(x=Session,y=Nb.formations)) +
+  geom_line() +
+  expand_limits(y=0)
+
+```
+
+
 
 ## IUT
 
