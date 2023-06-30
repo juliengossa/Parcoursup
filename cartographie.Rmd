@@ -148,12 +148,12 @@ parcoursup %>%
 
 ```{r carte.formations.0, fig.asp=9/16}
 parcoursup %>% 
-  filter(Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis. > 9) %>%
-  ggplot(aes(x=Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.,
+  filter(Effectif.total.des.candidats.pour.une.formation > 9) %>%
+  ggplot(aes(x=Effectif.total.des.candidats.pour.une.formation,
              y=Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP.)) +
-  geom_point(size=0.2) +
+  geom_point(size=0.2) + geom_smooth() +
   scale_x_log10() +
-  xlab("Nombre de candidats admis") +
+  xlab("Nombre de candidatures") +
   scale_y_continuous(labels = ~ paste0(.x,"%"), name = "Taux d'accès (100% = non sélectif)") +
   theme_cpesr() +
   theme(legend.position = "none", 
@@ -178,6 +178,7 @@ parcoursup %>%
   theme(legend.position = "none", 
         panel.grid.major.x = element_line(colour = "#D8D8D8"))
 ```
+
 
 ```{r carte.formations.1}
 parcoursup %>% 
@@ -247,4 +248,24 @@ parcoursup %>%
          Admis = Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.,
          Taux.d.accès = Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP., everything()) %>%
   spoilerTable()
+```
+
+
+```{r carte.formations.candidatures}
+parcoursup %>% 
+  filter(Région.de.l.établissement == code.region) %>%
+  ggplot(aes(x=Effectif.total.des.candidats.pour.une.formation,
+             y=Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP., 
+             size=Effectif.total.des.candidats.ayant.accepté.la.proposition.de.l.établissement..admis.,
+             color=Taux.d.accès.des.candidats.ayant.postulé.à.la.formation..ratio.entre.le.dernier.appelé.et.le.nombre.vœux.PP.)) +
+  geom_point() +
+  #scale_x_log10() +
+  geom_point(
+    data = . %>% filter(Filière.de.formation.détaillée %in% formations$Libellé),
+    color = "red") +
+  xlab("Nombre de candidatures") +
+  scale_y_continuous(labels = ~ paste0(.x,"%"), name = "Taux d'accès (100% = non sélectif)") +
+  theme_cpesr() +
+  theme(legend.position = "none", 
+        panel.grid.major.x = element_line(colour = "#D8D8D8"))
 ```
