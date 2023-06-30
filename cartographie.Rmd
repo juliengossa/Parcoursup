@@ -23,6 +23,7 @@ candidats <- xlsx::read.xlsx("data/Candidats ES2024.xlsx", sheetIndex = 1)
 codes.lycées <- unique(candidats$NA.)
 code.region <- "Nouvelle-Aquitaine"
 lycees <- read.csv2("data/fr-en-indicateurs-de-resultat-des-lycees-denseignement-general-et-technologique.csv", dec='.')
+ips <- read.csv2("data/fr-en-ips_lycees.csv", dec='.')
 parcoursup <- read.csv2("data/fr-esr-parcoursup-2021-xls.csv", dec='.')
 ```
 
@@ -70,6 +71,26 @@ lycees %>%
   select(etablissement,effectif_presents_total_series,taux_mention_brut_toutes_series,everything()) %>%
   spoilerTable()
 ```
+
+
+```{r carte.lycees.ips, fig.cap="Positionnement des lycées de Nouvelle-Aquitaine en fonction de leur taille et taux de mention", fig.asp=9/16}
+lycees %>% 
+  filter(annee == max(annee), libelle_region_2016 == str_to_upper(code.region)) %>%
+  left_join(ips %>% filter(rentree_scolaire == max(rentree_scolaire)), by = c("code_etablissement" = "uai")) %>%
+  ggplot(aes(x=ips_ensemble_gt_pro,y=taux_mention_brut_toutes_series, 
+             size=effectif_presents_total_series, color=taux_mention_brut_toutes_series)) +
+  geom_point() +
+  geom_point(
+    data = . %>% filter(code_etablissement %in% codes.lycées),
+    color = "red") +
+  xlab("Indice de position sociale (IPS)") +
+  scale_y_continuous(labels = ~ paste0(.x,"%"), name = "Taux de mention") +
+  theme_cpesr() +
+  theme(
+    legend.position = "none",
+    panel.grid.major.x = element_line(colour = "#D8D8D8"))
+```
+
 
 ## Formations
 

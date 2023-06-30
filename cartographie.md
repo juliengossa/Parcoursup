@@ -38,6 +38,8 @@ Voir les données
 
 </details>
 
+<img src="cartographie_files/figure-gfm/carte.lycees.ips-1.png" title="Positionnement des lycées de Nouvelle-Aquitaine en fonction de leur taille et taux de mention" alt="Positionnement des lycées de Nouvelle-Aquitaine en fonction de leur taille et taux de mention" width="672" />
+
 ## Formations
 
 La Figure 2 utilise le jeu de données
