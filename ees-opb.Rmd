@@ -83,7 +83,7 @@ plot_grid(ncol=2,
 ```{r odf, fig.cap="Formations et admissions par taille de formation"}
 session.palette <- RColorBrewer::brewer.pal(10,"RdBu")[c(2,3,6:10)]
 ps %>% 
-  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
+  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licences", "Hors licences" )) %>%
   filter(!is.na(taille)) %>%
   group_by(Session, Filière, taille) %>% 
   summarise(
@@ -108,7 +108,7 @@ ps %>%
 
 ```{r sel, fig.cap="Sélectivité des formations de Parcoursup"}
 ps %>%
-  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
+  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licences", "Hors licences" )) %>%
   filter(Session %in% c(2020,2021,2022)) %>%
   filter(!is.na(taux.accès)) %>%
   mutate(tda = cut(taux.accès, c(0,0.1,0.3,0.5,0.7,0.90,1,Inf),right=FALSE)) %>%
@@ -132,7 +132,7 @@ ps %>%
 
 ```{r sel.taux, fig.cap="Sélectivité des formations de Parcoursup"}
 ps %>%
-  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licence", "Autres formations" )) %>%
+  mutate(Filière = ifelse(Filière.de.formation.très.agrégée %in% c("Licence","Licence_Las"), "Licences", "Hors licences" )) %>%
   filter(Session %in% c(2020,2021,2022)) %>%
   filter(!is.na(taux.accès)) %>%
   mutate(tda = cut(taux.accès, c(0,0.1,0.3,0.5,0.7,0.90,1,Inf),right=FALSE)) %>%
@@ -148,7 +148,7 @@ ps %>%
   geom_col(position = "dodge") +
   xlab("Taux d'accès") +
   facet_wrap(.~serie, ncol=2, scales = "free_y") +
-  scale_x_discrete(labels=c("<10%","<30%","<50%","<70%","<90%","<100%","100%")) +
+  scale_x_discrete(labels=c("<10%","10 à\n29%","30 à\n49%","50 à\n69%","70 à\n89%","90 à\n99%","100%")) +
   scale_fill_manual(values = session.palette[5:7]) +
   scale_y_continuous(labels = scales::percent) +
   theme(legend.position = "bottom", panel.grid.major.x = element_blank()) +
