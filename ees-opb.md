@@ -52,6 +52,41 @@ le réseau social Twitter.
 
 <img src="ees-opb_files/figure-gfm/pe-1.png" title="Taux de poursuite et nombre de non-poursuites d'étude des néo-bacheliers" alt="Taux de poursuite et nombre de non-poursuites d'étude des néo-bacheliers" width="100%" style="display: block; margin: auto;" />
 
+## Informations additionnelles
+
+### sur déclaration de capacités
+
+<details>
+<summary>
+Surdéclarants
+</summary>
+
+| Session | capacité_plus_1000 | nb_formations |
+|--------:|:-------------------|--------------:|
+|    2016 | FALSE              |           446 |
+|    2016 | TRUE               |            68 |
+|    2017 | FALSE              |           358 |
+|    2017 | TRUE               |            40 |
+|    2018 | FALSE              |           207 |
+|    2018 | TRUE               |             2 |
+|    2019 | FALSE              |            96 |
+|    2019 | TRUE               |             7 |
+|    2020 | FALSE              |            51 |
+|    2020 | TRUE               |             9 |
+|    2021 | FALSE              |            74 |
+|    2021 | TRUE               |            12 |
+|    2022 | FALSE              |            84 |
+|    2022 | TRUE               |            12 |
+
+</details>
+
+### Taux remplissage
+
+<img src="ees-opb_files/figure-gfm/unnamed-chunk-2-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="ees-opb_files/figure-gfm/unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;" />
+
+<img src="ees-opb_files/figure-gfm/unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" />
+
 <div id="refs" class="references csl-bib-body hanging-indent">
 
 <div id="ref-wickham_ggplot2_2009" class="csl-entry">
